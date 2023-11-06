@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:planet/components/DairyInfoCard.dart';
-import 'package:planet/controllers/plant_detail_controller.dart';
 import 'package:planet/theme.dart';
 
 class DiaryScreen extends StatelessWidget {
@@ -9,7 +7,6 @@ class DiaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PlantDetailViewModel controller = Get.put(PlantDetailViewModel());
     return Scaffold(
       body: Container(
           width: double.infinity,
