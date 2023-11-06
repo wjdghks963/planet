@@ -13,10 +13,26 @@ class TextStyles {
       color: Colors.black,
       fontFamily: 'Poppins',
       fontWeight: FontWeight.w500);
+
+  static const whiteTitleStyle = TextStyle(
+      fontSize: 28,
+      color: Colors.white,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w500
+  );
+
+
+  static const buttonTextStyle = TextStyle(
+      fontSize: 16,
+      color: Colors.white,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w500
+  );
 }
 
 class ColorStyles {
   static const Color darkGray = Color(0xff494949);
+  static const Color mainAccent = Color(0xFF006400);
 }
 
 class BgColor {
