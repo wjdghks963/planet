@@ -1,9 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:planet/components/DairyInfoCard.dart';
+import 'package:get/get.dart';
+import 'package:planet/components/dairy_info_card.dart';
+import 'package:planet/components/common/custom_alert_dialog.dart';
+import 'package:planet/screen/diary/add_plant_form.dart';
 import 'package:planet/theme.dart';
 
 class DiaryScreen extends StatelessWidget {
-  const DiaryScreen({super.key});
+  DiaryScreen({super.key});
+
+  int maxItemCount = 1;
+
+  // TODO:: 2개 이상이면 팝업
+  Future? goToAddForm() {
+    if (maxItemCount > 2) {
+    return  Get.dialog(
+          CustomAlertDialog(alertContent: "$maxItemCount개 이상은 등록할 수 없습니다."));
+    } else {
+      return Get.to(
+        const AddPlantForm(),
+        transition: Transition.rightToLeft,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,20 +42,20 @@ class DiaryScreen extends StatelessWidget {
                   )),
               Expanded(
                   child: ListView.builder(
-                      itemCount: 12,
+                      itemCount: maxItemCount,
                       itemBuilder: (context, index) {
                         return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 25.0),
                             child: DairyInfoCard(
                               nickName: "dasdasdas",
-                              plantId: 1,
+                              uid: 1,
                               period: 32,
                             ));
                       })),
             ],
           )),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => print("asd"),
+        onPressed: goToAddForm,
         tooltip: 'Increment',
         backgroundColor: ColorStyles.mainAccent,
         child: const Icon(Icons.add),
