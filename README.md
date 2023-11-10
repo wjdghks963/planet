@@ -12,7 +12,10 @@ getx 사용해 mvvm 패턴 적용
 
 getx의 controller 사용함
 
-## Feature
+## Feature & Screen
+
+- [ ] 로그인
+    - [ ] 소셜 로그인 구현
 
 - [x] 홈
     - [x] 주간 인기
@@ -25,4 +28,5 @@ getx의 controller 사용함
 
 - [ ] 다이어리
     - [x] 다이어리 조회
-    - [x] 다이어리 추가
+    - [x] 다이어리 추가 및 수정
+    - [ ] 다이어리 신고 
