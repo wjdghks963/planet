@@ -7,8 +7,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/components/common/form_textfield.dart';
-import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/models/api/plant/plant_add.dart';
+import 'package:planet/services/plant_api_service.dart';
 import 'package:planet/theme.dart';
+import 'package:planet/utils/image_resizer.dart';
 
 class AddPlantForm extends StatefulWidget {
   const AddPlantForm({super.key});
@@ -18,6 +20,9 @@ class AddPlantForm extends StatefulWidget {
 }
 
 class _AddPlantFormState extends State<AddPlantForm> {
+  late TextEditingController nickNameController;
+  late TextEditingController scientificNameController;
+
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
 
@@ -29,13 +34,48 @@ class _AddPlantFormState extends State<AddPlantForm> {
     });
   }
 
+  Future<void> submitPlant() async {
+    if (_pickedImage == null) {
+      // 이미지가 선택되지 않았다면 경고 메시지 표시
+      // 예: ScaffoldMessenger.of(context).showSnackBar(...)
+      return;
+    }
+
+    String? compressedData = await compressImage(_pickedImage!);
+
+    PlantAdd newPlant = PlantAdd(
+      nickNameController.text,
+      scientificNameController.text,
+      compressedData!,
+    );
+
+    // API 호출
+    final response = await PostPlantApiClient().addPlant(newPlant);
+
+    if(response.statusCode == 200){
+      Get.back();
+    }else{
+      //TODO:: plant 추가 실패 예외처리
+    }
+
+  }
+
+  @override
+  void initState() {
+    nickNameController = TextEditingController();
+    scientificNameController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    nickNameController.dispose();
+    scientificNameController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController nickNameController = TextEditingController();
-    TextEditingController scientificNameController = TextEditingController();
-
-    final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
-
     return Scaffold(
         appBar: CustomAppBar(
           title: "식물 추가",
@@ -70,7 +110,7 @@ class _AddPlantFormState extends State<AddPlantForm> {
                   ),
                   child: _pickedImage != null
                       ? InkWell(
-                          onTap: () => getImage(ImageSource.camera),
+                          onTap: () => getImage(ImageSource.gallery),
                           child: Image.file(
                             File(_pickedImage!.path),
                             fit: BoxFit.fitWidth,
@@ -78,7 +118,7 @@ class _AddPlantFormState extends State<AddPlantForm> {
                           ),
                         )
                       : InkWell(
-                          onTap: () => getImage(ImageSource.camera),
+                          onTap: () => getImage(ImageSource.gallery),
                           child: Container(
                             color: Colors.white,
                             height: 300,
@@ -89,7 +129,11 @@ class _AddPlantFormState extends State<AddPlantForm> {
               const SizedBox(
                 height: 50,
               ),
-              CustomTextButton(content: "작성 완료", onPressed: () {})
+              CustomTextButton(
+                  content: "작성 완료",
+                  onPressed: () {
+                    submitPlant();
+                  })
             ],
           ),
         ));
