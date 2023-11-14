@@ -8,8 +8,20 @@ class TextStyles {
     fontWeight: FontWeight.w500,
   );
 
+  static const normalStyle = TextStyle(
+      fontSize: 18,
+      color: Colors.black,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w500);
+
   static const infoTextStyle = TextStyle(
       fontSize: 14,
+      color: Colors.black,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w500);
+
+  static const dialogTextStyle = TextStyle(
+      fontSize: 20,
       color: Colors.black,
       fontFamily: 'Poppins',
       fontWeight: FontWeight.w500);
@@ -19,6 +31,13 @@ class TextStyles {
       color: Colors.white,
       fontFamily: 'Poppins',
       fontWeight: FontWeight.w500
+  );
+
+  static const whiteLabelTextStyle = TextStyle(
+      fontSize: 20,
+      color: Colors.white,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w600
   );
 
 

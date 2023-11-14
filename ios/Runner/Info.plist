@@ -47,5 +47,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>사진 라이브러리에 액세스하기 위해 권한이 필요합니다.</string>
+
 </dict>
 </plist>

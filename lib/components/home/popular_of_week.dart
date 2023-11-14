@@ -1,6 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:planet/components/DairyInfoCard.dart';
 import 'package:planet/components/home/plant_info_card.dart';
 
 class PopularWeekCarousel extends StatefulWidget {
@@ -24,7 +23,13 @@ class _PopularWeekCarouselState extends State<PopularWeekCarousel> {
           items: [1, 2, 3, 4, 5].map((i) {
             return Builder(
               builder: (BuildContext context) {
-                return PlantInfoCard(imgUrl: 'https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg', nickName: "asdadsdsdsa", heart: 123123);
+                return PlantInfoCard(
+                  imgUrl:
+                      'https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg',
+                  nickName: "asdadsdsdsa",
+                  heart: 123123,
+                  uid: 12,
+                );
               },
             );
           }).toList(),
@@ -34,7 +39,7 @@ class _PopularWeekCarouselState extends State<PopularWeekCarousel> {
 
             // Set the size of each carousel item
             // if height is not specified
-             aspectRatio: 16 / 9,
+            aspectRatio: 16 / 9,
 
             // Set how much space current item widget
             // will occupy from current page view

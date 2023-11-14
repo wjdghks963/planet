@@ -1,12 +1,17 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
+import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/services/api_diary_form.dart';
 import 'package:planet/theme.dart';
+import 'package:planet/utils/ImageResizer.dart';
 
 class DiaryForm extends StatefulWidget {
   const DiaryForm({super.key});
@@ -16,22 +21,46 @@ class DiaryForm extends StatefulWidget {
 }
 
 class _DiaryFormState extends State<DiaryForm> {
+
+  final TextEditingController _contentController = TextEditingController();
+
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
 
   void getImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
 
-    setState(() {
-      _pickedImage = image;
-    });
+    if (image != null) {
+      File imageFile = File(image.path);
+
+      // 이미지 압축 이 데이터를 보낼거임
+     // Uint8List? compressedData = await compressImage(imageFile);
+
+      setState(() {
+        _pickedImage = XFile(imageFile.path ?? '');
+      });
+    }
   }
 
   bool isPublic = false;
 
+  Future<void> postForm(String url, int uid) async {
+    // 이미지 압축
+    Uint8List? compressedData = await compressImage(_pickedImage as File);
+
+    print(compressedData);
+
+    ApiDiaryForm apiDiaryForm = ApiDiaryForm();
+    Response response =
+        await apiDiaryForm.postForm(uid, url, compressedData!, "", isPublic);
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
+    // final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
+    final SelectedPlantDetailController selectedPlantDetailController =
+        Get.find<SelectedPlantDetailController>();
 
     return Scaffold(
         appBar: CustomAppBar(
@@ -49,7 +78,8 @@ class _DiaryFormState extends State<DiaryForm> {
                   Column(
                     children: [
                       Text(
-                        controller.selectedPlant.nickName ?? "",
+                        selectedPlantDetailController.selectedPlant.nickName ??
+                            "",
                         style: TextStyles.whiteTitleStyle,
                       ),
                       Text(
@@ -107,6 +137,7 @@ class _DiaryFormState extends State<DiaryForm> {
               SizedBox(
                 height: 400,
                 child: TextField(
+                  controller: _contentController,
                   maxLines: 200,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
@@ -118,32 +149,23 @@ class _DiaryFormState extends State<DiaryForm> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15.0),
-                      borderSide: const BorderSide(
-                          color:
-                              ColorStyles.mainAccent),
+                      borderSide:
+                          const BorderSide(color: ColorStyles.mainAccent),
                     ),
                   ),
-                  style: TextStyle(height: 1.5),
+                  style: const TextStyle(height: 1.5),
                 ),
               ),
               const SizedBox(
                 height: 50,
               ),
-              TextButton(
-                style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(20.0), // 원하는 라운드 값을 설정
-                    ),
-                    backgroundColor: ColorStyles.mainAccent),
-                onPressed: () {
-                  // 버튼을 누를 때 수행할 동작
-                },
-                child: const Text(
-                  '작성 완료',
-                  style: TextStyles.buttonTextStyle,
-                ),
-              )
+              CustomTextButton(
+                  content: "작성 완료",
+                  onPressed: () {
+                    print("selected ${selectedPlantDetailController.selectedPlant.uid}");
+                    postForm(
+                        "", selectedPlantDetailController.selectedPlant.uid!);
+                  })
             ],
           ),
         ));

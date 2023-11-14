@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/controllers/selected_plant_detail_controller.dart';
 import 'package:planet/screen/diary/diaries.dart';
 import 'package:planet/screen/home.dart';
-import 'package:planet/screen/user_info.dart';
+import 'package:planet/screen/user_info/user_info.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({Key? key}) : super(key: key);
@@ -18,10 +19,10 @@ class _RootScreenWidgetState extends State<RootScreen> {
 
   static const TextStyle optionStyle =
       TextStyle(fontSize: 40, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
-    DiaryScreen(),
-    UserInfo()
+  static  final List<Widget> _widgetOptions = <Widget>[
+    const HomeScreen(),
+     DiaryScreen(),
+    const UserInfo()
   ];
 
   void _onItemTapped(int index) {
@@ -32,7 +33,6 @@ class _RootScreenWidgetState extends State<RootScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final PlantDetailViewModel controller = Get.put(PlantDetailViewModel());
 
     return SafeArea(
         child: Scaffold(

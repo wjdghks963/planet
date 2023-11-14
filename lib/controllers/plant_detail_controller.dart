@@ -8,6 +8,7 @@ class PlantDetailViewModel extends GetxController {
   RxBool isDataFetching = false.obs;
 
   final Rx<PlantDetailModel> _selectedPlant = PlantDetailModel().obs;
+
   PlantDetailModel get selectedPlant => _selectedPlant.value;
 
   final RxList<PlantDetailModel> _plantDetailModels = <PlantDetailModel>[].obs;
@@ -18,11 +19,6 @@ class PlantDetailViewModel extends GetxController {
   void onInit() {
     super.onInit();
     fetchPlantDetail();
-  }
-
-  void selectDetail(int uid, String nickName, String? imgUrl) {
-    PlantDetailModel model = service.selectedDetail(uid, nickName, imgUrl);
-    _selectedPlant(model);
   }
 
   void fetchPlantDetail() async {

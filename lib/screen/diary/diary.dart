@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/controllers/selected_plant_detail_controller.dart';
 import 'package:planet/screen/diary/diary_form.dart';
 import 'package:planet/theme.dart';
 
@@ -16,7 +17,7 @@ class _DiaryState extends State<Diary> {
   Widget build(BuildContext context) {
     bool readOnly = true;
 
-    final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
+    final SelectedPlantDetailController selectedPlantDetailController = Get.find<SelectedPlantDetailController>();
 
     return Scaffold(
         appBar: CustomAppBar(
@@ -41,7 +42,7 @@ class _DiaryState extends State<Diary> {
                   Column(
                     children: [
                       Text(
-                        controller.selectedPlant.nickName ?? "",
+                        selectedPlantDetailController.selectedPlant.nickName ?? "",
                         style: TextStyles.whiteTitleStyle,
                       ),
                       Text(

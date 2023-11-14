@@ -3,15 +3,15 @@ import 'package:planet/components/common/heart_box.dart';
 import 'package:planet/components/common/period_box.dart';
 import 'package:planet/theme.dart';
 
-
-class DetailInfoCotainer extends StatelessWidget {
+class DetailInfoContainer extends StatelessWidget {
   String nickName;
   String scientificName;
   int period;
   int heart;
 
-  DetailInfoCotainer(
-      {required this.nickName,
+  DetailInfoContainer(
+      {super.key,
+      required this.nickName,
       required this.scientificName,
       required this.period,
       required this.heart});
@@ -40,7 +40,10 @@ class DetailInfoCotainer extends StatelessWidget {
             children: [
               PeriodBox(period: period),
               const SizedBox(width: 20),
-              HeartBox(heart: heart)
+              HeartBox(
+                heart: heart,
+                toggle: true,
+              )
             ],
           )
         ],

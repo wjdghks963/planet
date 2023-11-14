@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:planet/components/DetailInfoContainer.dart';
+import 'package:planet/components/detail_info_container.dart';
 import 'package:planet/components/calendar.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/screen/diary/edit_plant_form.dart';
 import 'package:planet/theme.dart';
 
-
+// TODO:: 내거면 수정 가능 아니면 svg도 안뜨게
 class PlantDetail extends StatefulWidget {
   const PlantDetail({super.key});
 
@@ -17,18 +19,33 @@ class PlantDetail extends StatefulWidget {
 class _PlantDetailState extends State<PlantDetail> {
   @override
   Widget build(BuildContext context) {
-    final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
+    final SelectedPlantDetailController selectedPlantDetailController =
+        Get.find<SelectedPlantDetailController>();
 
+    print(selectedPlantDetailController.selectedPlant.uid);
     return SafeArea(
         child: Scaffold(
             backgroundColor: BgColor.mainColor,
             appBar: CustomAppBar(
-              title: controller.selectedPlant.nickName ?? "",
+              title: selectedPlantDetailController.selectedPlant.nickName ?? "",
+              rightComponent: InkWell(
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Icon(Icons.create, color: Colors.black),
+                ),
+                onTap: () => Get.to(const EditPlantForm(),
+                    transition: Transition.rightToLeft),
+              ),
             ),
             body: Container(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15.0,
+              ),
               child: ListView(
                 children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
                   ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(20.0)),
                     child: Image.network(
@@ -38,14 +55,18 @@ class _PlantDetailState extends State<PlantDetail> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  DetailInfoCotainer(
-                      nickName: controller.selectedPlant.nickName != null
-                          ? controller.selectedPlant.nickName as String
+                  DetailInfoContainer(
+                      nickName: selectedPlantDetailController
+                                  .selectedPlant.nickName !=
+                              null
+                          ? selectedPlantDetailController.selectedPlant.nickName
+                              as String
                           : "",
                       scientificName: "scientificName",
                       period: 12,
                       heart: 123),
-                  CustomCalendar()
+                  CustomCalendar(),
+                  const SizedBox(height: 30)
                 ],
               ),
             )));
