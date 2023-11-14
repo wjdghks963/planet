@@ -1,72 +1,166 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:planet/bindings/CustomBindings.dart';
 import 'package:planet/screen/root.dart';
+import 'package:planet/utils/OAuth/social_login.dart';
+import 'package:planet/utils/OAuth/token_storage.dart';
 
 void main() async {
   await initializeDateFormatting();
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.remove();
+
+  bool loggedIn = await TokenStorage().hasToken();
+
+
+  runApp( MyApp(loggedIn:loggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool loggedIn;
+
+
+  const MyApp({Key? key, required this.loggedIn}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       initialBinding: CustomBindings(),
-      title: 'Flutter Demo',
+      title: 'Planet',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: loggedIn ? const RootScreen() : const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key});
 
-  final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    Get.to(const RootScreen());
-  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
+            body: Container(
+      color: Colors.white,
+      child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            Image.asset(
+              'assets/images/logo.png',
+              width: double.infinity,
+              height: 500,
+              fit: BoxFit.cover,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            const SizedBox(
+              height: 80,
             ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFFFFDC27),
+                      minimumSize: const Size(double.infinity, 0),
+                    ),
+                    child: const Text("카카오 로그인",
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      SocialLogin("google").run();
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      backgroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset('assets/icons/google.svg'),
+                        const SizedBox(width: 10,),
+                        const Text("Continue with Google",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600))
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                    onPressed: () {},
+
+
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      backgroundColor: Colors.black,
+                      minimumSize: const Size(double.infinity, 0),
+                    ),
+                    child:
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset('assets/icons/apple.svg'),
+                        const SizedBox(width: 10,),
+                        const   Text("Continue with Apple",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600))
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    ));
+    )));
   }
 }
