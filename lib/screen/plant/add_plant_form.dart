@@ -5,8 +5,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
+import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/components/common/form_textfield.dart';
+import 'package:planet/controllers/plant_controller.dart';
 import 'package:planet/models/api/plant/plant_add.dart';
 import 'package:planet/services/plant_api_service.dart';
 import 'package:planet/theme.dart';
@@ -35,17 +37,26 @@ class _AddPlantFormState extends State<AddPlantForm> {
   }
 
   Future<void> submitPlant() async {
+
+    String nickname = nickNameController.text;
+    String scientificName = scientificNameController.text;
+
     if (_pickedImage == null) {
-      // 이미지가 선택되지 않았다면 경고 메시지 표시
-      // 예: ScaffoldMessenger.of(context).showSnackBar(...)
+      Get.dialog(
+          CustomAlertDialog(alertContent: "사진을 등록해 주세요."));
+      return;
+    }
+    if(nickname == "" || scientificName == "" ){
+      Get.dialog(
+          CustomAlertDialog(alertContent: "빈칸을 전부 채워 주세요."));
       return;
     }
 
     String? compressedData = await compressImage(_pickedImage!);
 
     PlantAdd newPlant = PlantAdd(
-      nickNameController.text,
-      scientificNameController.text,
+      nickname,
+      scientificName,
       compressedData!,
     );
 
@@ -53,6 +64,8 @@ class _AddPlantFormState extends State<AddPlantForm> {
     final response = await PostPlantApiClient().addPlant(newPlant);
 
     if(response.statusCode == 200){
+      final plantController = Get.find<PlantController>();
+      plantController.fetchPlants();
       Get.back();
     }else{
       //TODO:: plant 추가 실패 예외처리
