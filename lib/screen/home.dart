@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:planet/components/home/popular_of_week.dart';
+import 'package:get/get.dart';
+import 'package:planet/components/home/random_plants_carousel.dart';
+import 'package:planet/components/home/recent_plants_carousel.dart';
+import 'package:planet/screen/plant/recent_plants_screen.dart';
 import 'package:planet/theme.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -20,7 +23,7 @@ class HomeScreen extends StatelessWidget {
               children: const [
                 SizedBox(
                     width: double.infinity,
-                    child: Text("주간 인기",
+                    child: Text("랜덤",
                         textAlign: TextAlign.left,
                         style: TextStyle(
                           color: Colors.white,
@@ -28,13 +31,13 @@ class HomeScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ))),
                 SizedBox(
-                  height: 10.0,
+                  height: 20.0,
                 ),
-                PopularWeekCarousel(),
+                RandomPlantsCarousel(),
               ],
             ),
             const SizedBox(
-              height: 25.0,
+              height: 50.0,
             ),
             Column(
               children: [
@@ -42,8 +45,8 @@ class HomeScreen extends StatelessWidget {
                     width: double.infinity,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text("랜덤",
+                      children: [
+                        const Text("최신",
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               color: Colors.white,
@@ -51,13 +54,16 @@ class HomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             )),
                         InkWell(
-                          child: Text("더 보기",
+                          child: const Text("더 보기",
                               textAlign: TextAlign.left,
                               style: TextStyles.whiteLabelTextStyle),
+                          onTap: () {
+                            Get.to(() => const  RecentPlantsScreen());
+                          },
                         )
                       ],
                     )),
-                PopularWeekCarousel(),
+                const RecentPlantsCarousel()
               ],
             ),
           ],
