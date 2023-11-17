@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/controllers/selected_plant_detail_controller.dart';
 import 'package:planet/models/api/diary/diary_detail_model.dart';
-import 'package:planet/screen/diary/diary.dart';
+import 'package:planet/screen/diary/diary_detail_screen.dart';
 import 'package:planet/screen/diary/diary_form.dart';
 import 'package:planet/theme.dart';
 import 'package:planet/utils/calendar/event.dart';
@@ -43,7 +43,6 @@ class _CustomCalendarState extends State<CustomCalendar> {
     _createEventsMap();
 
     selectedPlantDetailController = Get.find<SelectedPlantDetailController>();
-
   }
 
   void _createEventsMap() {
@@ -51,11 +50,12 @@ class _CustomCalendarState extends State<CustomCalendar> {
     for (var diary in widget.diaries ?? []) {
       final dateKey = diary.createdAt;
       if (events.containsKey(dateKey)) {
-        events[dateKey]!
-            .add(CalendarEvent(isPublic: diary.isPublic, isMine: diary.isMine));
+        events[dateKey]!.add(CalendarEvent(
+            id: diary.id, isPublic: diary.isPublic, isMine: diary.isMine));
       } else {
         events[dateKey] = [
-          CalendarEvent(isPublic: diary.isPublic, isMine: diary.isMine)
+          CalendarEvent(
+              id: diary.id, isPublic: diary.isPublic, isMine: diary.isMine)
         ];
       }
     }
@@ -63,21 +63,19 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
   Future? goToDiaryDetail(String selectedDay) {
     final eventsOnDay = events[selectedDay];
-print(eventsOnDay);
     if (eventsOnDay != null && eventsOnDay.isNotEmpty) {
       final diary = eventsOnDay.first;
-
       if (diary.isMine) {
-        return Get.to(() => Diary(),
+        return Get.to(() => DiaryDetailScreen(),
             transition: Transition.rightToLeft,
-            arguments: {'date': _selectedDay});
+            arguments: {'diaryId': diary.id, 'date': _selectedDay});
       }
 
       if (diary.isPublic) {
         // 일기가 공개되어 있거나, 내 일기인 경우
-        return Get.to(() => Diary(),
+        return Get.to(() => DiaryDetailScreen(),
             transition: Transition.rightToLeft,
-            arguments: {'date': _selectedDay});
+            arguments: {'diaryId': diary.id, 'date': _selectedDay});
       }
 
       if (diary.isMine == false && diary.isPublic == false) {
@@ -85,23 +83,20 @@ print(eventsOnDay);
       }
     }
 
-    if(eventsOnDay == null && widget.isMine == true){
-        // 일기 작성 페이지로 이동
-        return Get.to(() => const DiaryForm(),
-            transition: Transition.rightToLeft,
-            arguments: {'date': _selectedDay});
-
+    if (eventsOnDay == null && widget.isMine == true) {
+      // 일기 작성 페이지로 이동
+      return Get.to(() => const DiaryForm(),
+          transition: Transition.rightToLeft,
+          arguments: {'date': _selectedDay});
     }
-
-
 
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
-
-    String createdAtString = selectedPlantDetailController.selectedPlant.createdAt!;
+    String createdAtString =
+        selectedPlantDetailController.selectedPlant.createdAt!;
     DateTime firstDay = DateTime.parse(createdAtString);
 
     return Container(
