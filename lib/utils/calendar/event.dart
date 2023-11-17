@@ -1,9 +1,9 @@
 
 class CalendarEvent {
-  final String content;
-  final bool public;
-  final bool mine;
+  final int id;
+  final bool isPublic;
+  final bool isMine;
 
-  CalendarEvent(this.content, {this.public = false, this.mine = false});
+  CalendarEvent({this.id = 0,this.isPublic = false, this.isMine = false});
 }
 
