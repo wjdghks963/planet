@@ -1,17 +1,17 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
+import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
-import 'package:planet/controllers/plant_detail_controller.dart';
 import 'package:planet/controllers/selected_plant_detail_controller.dart';
-import 'package:planet/services/api_diary_form.dart';
+import 'package:planet/models/api/diary/diary_form_dto.dart';
+import 'package:planet/services/diary_api_service.dart';
 import 'package:planet/theme.dart';
-import 'package:planet/utils/ImageResizer.dart';
+import 'package:planet/utils/image_resizer.dart';
 
 class DiaryForm extends StatefulWidget {
   const DiaryForm({super.key});
@@ -21,7 +21,6 @@ class DiaryForm extends StatefulWidget {
 }
 
 class _DiaryFormState extends State<DiaryForm> {
-
   final TextEditingController _contentController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
@@ -30,35 +29,40 @@ class _DiaryFormState extends State<DiaryForm> {
   void getImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
 
-    if (image != null) {
-      File imageFile = File(image.path);
-
-      // 이미지 압축 이 데이터를 보낼거임
-     // Uint8List? compressedData = await compressImage(imageFile);
-
-      setState(() {
-        _pickedImage = XFile(imageFile.path ?? '');
-      });
-    }
+    setState(() {
+      _pickedImage = image;
+    });
   }
 
   bool isPublic = false;
 
-  Future<void> postForm(String url, int uid) async {
+  Future<void> postForm() async {
+    SelectedPlantDetailController selectedPlantDetailController =
+        Get.find<SelectedPlantDetailController>();
+
     // 이미지 압축
-    Uint8List? compressedData = await compressImage(_pickedImage as File);
+    String? compressedData = await compressImage(_pickedImage!);
 
-    print(compressedData);
+    DiaryApiClient apiDiaryForm = DiaryApiClient();
 
-    ApiDiaryForm apiDiaryForm = ApiDiaryForm();
-    Response response =
-        await apiDiaryForm.postForm(uid, url, compressedData!, "", isPublic);
+    DiaryFormDTO diaryFormDTO = DiaryFormDTO(
+        plantId: selectedPlantDetailController.selectedPlant.plantId!,
+        content: _contentController.text,
+        imgData: compressedData!,
+        isPublic: isPublic,
+        createdAt: Get.arguments["date"]);
 
+    try {
+      await apiDiaryForm.postForm(diaryFormDTO);
+
+      return Get.back();
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
     final SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
 
@@ -76,6 +80,7 @@ class _DiaryFormState extends State<DiaryForm> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         selectedPlantDetailController.selectedPlant.nickName ??
@@ -115,7 +120,7 @@ class _DiaryFormState extends State<DiaryForm> {
                   ),
                   child: _pickedImage != null
                       ? InkWell(
-                          onTap: () => getImage(ImageSource.camera),
+                          onTap: () => getImage(ImageSource.gallery),
                           child: Image.file(
                             File(_pickedImage!.path),
                             fit: BoxFit.fitWidth,
@@ -123,7 +128,7 @@ class _DiaryFormState extends State<DiaryForm> {
                           ),
                         )
                       : InkWell(
-                          onTap: () => getImage(ImageSource.camera),
+                          onTap: () => getImage(ImageSource.gallery),
                           child: Container(
                             color: Colors.white,
                             height: 300,
@@ -157,15 +162,17 @@ class _DiaryFormState extends State<DiaryForm> {
                 ),
               ),
               const SizedBox(
-                height: 50,
+                height: 30,
               ),
               CustomTextButton(
                   content: "작성 완료",
+                  backgroundColor: ColorStyles.mainAccent,
                   onPressed: () {
-                    print("selected ${selectedPlantDetailController.selectedPlant.uid}");
-                    postForm(
-                        "", selectedPlantDetailController.selectedPlant.uid!);
-                  })
+                    postForm();
+                  }),
+              const SizedBox(
+                height: 30,
+              ),
             ],
           ),
         ));
