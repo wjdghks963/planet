@@ -1,48 +1,120 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:planet/models/api/plant/plant_add.dart';
-import 'package:planet/models/api/plant/plant_summary.dart';
+import 'package:planet/models/api/plant/plant_detail_model.dart';
 import 'package:get/get.dart';
+import 'package:planet/services/api_manager.dart';
+import 'package:planet/utils/OAuth/token_storage.dart';
 import 'package:planet/utils/develop_domain.dart';
 
-class GetPlantsApiClient extends GetConnect {
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
+class PlantsAipClient extends GetConnect {
+  TokenStorage tokenStorage = TokenStorage();
 
-  Future<List<PlantSummary>> getPlants() async {
-    String? token = await storage.read(key: 'access_token');
-    String authorizationHeader = 'Bearer $token';
-    String domain = DevelopDomain().run();
+  Future<Map<String, String>> _getAuthHeader() async {
+    String? token = await tokenStorage.getToken(TokenType.acc);
+    return {'Authorization': 'Bearer $token'};
+  }
 
+  final ApiManager apiManager = ApiManager();
+
+  String domain = DevelopDomain().run();
+
+  // 내 plants 조회
+  Future<Response> getPlants() async {
     final response = await get(
-      '$domain/plants',
-      headers: {'Authorization': authorizationHeader},
+      '$domain/plants/my',
+      headers: await _getAuthHeader(),
     );
-    if (response.status.hasError) {
-      return Future.error(response.statusText!);
+
+    return response;
+  }
+
+  // plants 추가
+  Future<bool> addPlant(PlantAddOrEditForm newPlant) async {
+    final response = await apiManager.performApiCall(() async => post(
+        '$domain/plants/add',
+        {
+          "nickName": newPlant.nickName,
+          "scientificName": newPlant.scientificName,
+          "imgData": newPlant.imgData,
+        },
+        headers: await _getAuthHeader()));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody =
+      jsonDecode(response.bodyString!);
+      return responseBody['ok'] ?? false;
     } else {
-      return (response.body as List)
-          .map((e) => PlantSummary.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return false;
     }
   }
-}
 
-class PostPlantApiClient extends GetConnect {
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  // plants 수정
+  Future<bool> editPlant(PlantAddOrEditForm newPlant, int plantId) async {
+    final response = await apiManager.performApiCall(() async => post(
+          '$domain/plants/edit/$plantId',
+          headers: await _getAuthHeader(),
+          {
+            "nickName": newPlant.nickName,
+            "scientificName": newPlant.scientificName,
+            "imgData": newPlant.imgData,
+          },
+        ));
 
-  Future<Response> addPlant(PlantAdd newPlant) async {
-    String? token = await storage.read(key: 'access_token');
-    String authorizationHeader = 'Bearer $token';
-    String domain = DevelopDomain().run();
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody =
+          jsonDecode(response.bodyString!);
+      return responseBody['ok'] ?? false;
+    } else {
+      return false;
+    }
+  }
 
-    final response = await post(
-      '$domain/plants/add',
-      {
-        "nickName": newPlant.nickName,
-        "scientificName": newPlant.scientificName,
-        "img": newPlant.img,
-      },
-      headers: {'Authorization': authorizationHeader},
+  // plant 삭제
+  Future<bool> removePlant(int plantId) async {
+    final response = await apiManager.performApiCall(() async => delete(
+        '$domain/plants/remove/$plantId',
+        headers: await _getAuthHeader()));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody =
+          jsonDecode(response.bodyString!);
+      return responseBody['ok'] ?? false;
+    } else {
+      return false;
+    }
+  }
+
+// plant detail
+  Future<PlantDetailModel> getPlantDetail(int plantId) async {
+    final response = await apiManager.performApiCall(() async =>
+        get('$domain/plants/$plantId', headers: await _getAuthHeader()));
+
+    if (response?.statusCode == 200) {
+      return PlantDetailModel.fromJson(response!.body);
+    } else {
+      return Future.error(response!.statusText!);
+    }
+  }
+
+  // 랜덤 plants
+  Future<Response> getRandomPlants() async {
+    return await get(
+      '$domain/plants/random',
     );
+  }
+
+  // plants recent pagenation
+  Future<Response> getRecentPlants(int page) async {
+    return await get('$domain/plants?page=$page');
+  }
+
+  // heart toggle
+  Future<Response?> toggleHeartPlant(int plantId) async {
+    final response = await apiManager.performApiCall(() async => post(
+        "$domain/plants/heart/$plantId", {},
+        headers: await _getAuthHeader()));
 
     return response;
   }
