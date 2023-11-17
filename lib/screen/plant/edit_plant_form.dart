@@ -11,7 +11,7 @@ import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/components/common/form_textfield.dart';
 import 'package:planet/controllers/plant_controller.dart';
 import 'package:planet/controllers/selected_plant_detail_controller.dart';
-import 'package:planet/models/api/plant/plant_add.dart';
+import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/screen/root.dart';
 import 'package:planet/services/api_manager.dart';
 import 'package:planet/services/plant_api_service.dart';
@@ -59,7 +59,7 @@ class _EditPlantFormState extends State<EditPlantForm> {
 
     String? compressedData = await compressImage(_pickedImage!);
 
-    PlantAddOrEditForm newPlant = PlantAddOrEditForm(
+    PlantFormModel newPlant = PlantFormModel(
       nickname,
       scientificName,
       compressedData!,

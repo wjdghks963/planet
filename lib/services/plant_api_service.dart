@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:planet/models/api/plant/plant_add.dart';
+import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/models/api/plant/plant_detail_model.dart';
 import 'package:get/get.dart';
 import 'package:planet/services/api_manager.dart';
@@ -31,7 +31,7 @@ class PlantsAipClient extends GetConnect {
   }
 
   // plants 추가
-  Future<bool> addPlant(PlantAddOrEditForm newPlant) async {
+  Future<bool> addPlant(PlantFormModel newPlant) async {
     final response = await apiManager.performApiCall(() async => post(
         '$domain/plants/add',
         {
@@ -51,7 +51,7 @@ class PlantsAipClient extends GetConnect {
   }
 
   // plants 수정
-  Future<bool> editPlant(PlantAddOrEditForm newPlant, int plantId) async {
+  Future<bool> editPlant(PlantFormModel newPlant, int plantId) async {
     final response = await apiManager.performApiCall(() async => post(
           '$domain/plants/edit/$plantId',
           headers: await _getAuthHeader(),
