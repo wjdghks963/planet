@@ -43,14 +43,16 @@ class PlantsScreen extends StatelessWidget {
                 )),
             Expanded(
               child: Obx(() => ListView.builder(
-                    itemCount: plantController.summaryPlants.length,
+                    itemCount: plantController.myPlants.length,
                     itemBuilder: (context, index) {
-                      final plant = plantController.summaryPlants[index];
+
+                      final plant = plantController.myPlants[index];
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 25.0),
                         child: DairyInfoCard(
                           nickName: plant.nickName,
-                          uid: plant.plantId,
+                          plantId: plant.plantId,
                           period: plant.period,
                         ),
                       );
@@ -61,7 +63,7 @@ class PlantsScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => goToAddForm(plantController.summaryPlants.length),
+        onPressed: () => goToAddForm(plantController.myPlants.length),
         tooltip: 'Increment',
         backgroundColor: ColorStyles.mainAccent,
         child: const Icon(Icons.add),
