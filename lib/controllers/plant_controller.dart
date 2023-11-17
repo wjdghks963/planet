@@ -4,15 +4,12 @@ import 'package:planet/services/api_manager.dart';
 import 'package:planet/services/plant_api_service.dart';
 
 class PlantController extends GetxController {
-
-
   var myPlants = <PlantSummaryModel>[].obs;
   var randomPlants = <PlantSummaryModel>[].obs;
   var recentPlants = <PlantSummaryModel>[].obs;
   var reachedEndOfPage = false.obs;
-  bool isFetching = false;
-
-
+  var isFetching = false.obs;
+  var lastPageOfData = false.obs;
 
   int currentPage = 0;
 
@@ -30,11 +27,10 @@ class PlantController extends GetxController {
     final apiManager = ApiManager();
     final plantsApiClient = PlantsAipClient();
 
-
     final response =
         await apiManager.performApiCall(() => plantsApiClient.getPlants());
 
-    myPlants.value = (response?.body as List)
+    myPlants.value = (response.body as List)
         .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
@@ -50,8 +46,8 @@ class PlantController extends GetxController {
   }
 
   void fetchRecentPlants() async {
-    if (isFetching) return;
-    isFetching = true;
+    if (isFetching.value) return;
+    isFetching.value = true;
 
     final plantsApiClient = PlantsAipClient();
 
@@ -62,21 +58,23 @@ class PlantController extends GetxController {
           .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      if (newPlants.isNotEmpty) {
-        recentPlants.addAll(newPlants);
+      recentPlants.addAll(newPlants);
+
+      if (newPlants.length < 4) {
+        lastPageOfData.value = true;
+      } else {
         currentPage++;
       }
     }
-    isFetching = false;
+    isFetching.value = false;
   }
 
-
-
   void incrementPage() {
-    if (!isFetching && reachedEndOfPage.value) {
-      fetchRecentPlants();
+    if (!isFetching.value) {
+      if (lastPageOfData.value == false && reachedEndOfPage.value) {
+        fetchRecentPlants();
+      }
       reachedEndOfPage.value = false; // 상태 초기화
     }
   }
-
 }
