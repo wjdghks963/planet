@@ -1,7 +1,9 @@
-import 'package:intl/intl.dart';
 
 class CalendarEvent {
-  String title;
+  final String content;
+  final bool public;
+  final bool mine;
 
-  CalendarEvent(this.title);
+  CalendarEvent(this.content, {this.public = false, this.mine = false});
 }
+
