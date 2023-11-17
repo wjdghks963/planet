@@ -8,19 +8,22 @@ import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/models/api/diary/diary_detail_model.dart';
 import 'package:planet/models/api/diary/diary_form_dto.dart';
 import 'package:planet/services/diary_api_service.dart';
 import 'package:planet/theme.dart';
 import 'package:planet/utils/image_resizer.dart';
 
-class DiaryForm extends StatefulWidget {
-  const DiaryForm({super.key});
+class DiaryEditForm extends StatefulWidget {
+  const DiaryEditForm({super.key});
 
   @override
-  State<DiaryForm> createState() => _DiaryFormState();
+  State<DiaryEditForm> createState() => _DiaryEditFormState();
 }
 
-class _DiaryFormState extends State<DiaryForm> {
+class _DiaryEditFormState extends State<DiaryEditForm> {
+  final DiaryDetailModel diaryDetail = Get.arguments["diary"];
+
   final TextEditingController _contentController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
@@ -36,7 +39,7 @@ class _DiaryFormState extends State<DiaryForm> {
 
   bool isPublic = false;
 
-  Future<void> postForm() async {
+  Future<void> editForm() async {
     SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
 
@@ -53,12 +56,30 @@ class _DiaryFormState extends State<DiaryForm> {
         createdAt: Get.arguments["date"]);
 
     try {
-      await apiDiaryForm.postForm(diaryFormDTO);
+      await apiDiaryForm.editForm(diaryDetail.id, diaryFormDTO);
+      return Get.back();
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+    }
+  }
+
+  Future<void> removeDiary() async {
+    DiaryApiClient apiDiaryForm = DiaryApiClient();
+
+    try {
+      await apiDiaryForm.removeDiary(diaryDetail.id);
 
       return Get.back();
     } catch (e) {
       Get.dialog(CustomAlertDialog(alertContent: e.toString()));
     }
+  }
+
+  @override
+  void initState() {
+    _contentController.text = diaryDetail.content;
+
+    super.initState();
   }
 
   @override
@@ -168,11 +189,17 @@ class _DiaryFormState extends State<DiaryForm> {
                   content: "작성 완료",
                   backgroundColor: ColorStyles.mainAccent,
                   onPressed: () {
-                    postForm();
+                    editForm();
                   }),
               const SizedBox(
-                height: 30,
+                height: 10.0,
               ),
+              CustomTextButton(
+                  content: "삭제",
+                  backgroundColor: Colors.red,
+                  onPressed: () {
+                    removeDiary();
+                  }),
             ],
           ),
         ));
