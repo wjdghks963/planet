@@ -8,13 +8,16 @@ class DetailInfoContainer extends StatelessWidget {
   String scientificName;
   int period;
   int heart;
+  bool isMine;
 
   DetailInfoContainer(
       {super.key,
       required this.nickName,
       required this.scientificName,
       required this.period,
-      required this.heart});
+      required this.heart,
+      required this.isMine
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,7 @@ class DetailInfoContainer extends StatelessWidget {
               const SizedBox(width: 20),
               HeartBox(
                 heart: heart,
-                toggle: true,
+                toggle: !isMine,
               )
             ],
           )

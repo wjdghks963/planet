@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_select_dialog.dart';
+import 'package:planet/components/common/report_button.dart';
 import 'package:planet/components/detail_info_container.dart';
 import 'package:planet/components/custom_calendar.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
@@ -32,7 +33,7 @@ class _PlantDetailState extends State<PlantDetail> {
   void fetchPlantDetail() async {
     final selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
-    final plantApiClient = PlantsAipClient();
+    final plantApiClient = PlantsApiClient();
 
     try {
       final detail = await plantApiClient
@@ -52,21 +53,9 @@ class _PlantDetailState extends State<PlantDetail> {
             createdAt: _plantDetail!.createdAt);
       });
     } catch (e) {
-      print("Error : $e");
-      // 오류 처리
-      setState(() => isLoading = false);
-    }
-  }
-
-  void reportPlant() async {
-    final result = await Get.dialog<bool>(const CustomSelectDialog(
-      title: "신고",
-      content:
-          "이 식물의 이미지나 설명이 부적절하다고 생각하시나요?\n\n부적절한 내용은 커뮤니티에 해를 끼치며, 신고된 내용은 우리 팀에서 신중하게 검토됩니다.\n\n실제로 부적절한 경우, 해당 내용은 삭제될 수 있습니다.\n\n정말로 이 식물을 신고하시겠습니까?",
-    ));
-
-    if (result != null && result) {
-      Get.dialog(CustomAlertDialog(alertContent: "신고 완료되었습니다."));
+     // setState(() => isLoading = false);
+     await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+     Get.back();
     }
   }
 
@@ -74,8 +63,6 @@ class _PlantDetailState extends State<PlantDetail> {
   Widget build(BuildContext context) {
     final SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
-
-    print(_plantDetail?.isMine);
 
     return SafeArea(
         child: Scaffold(
@@ -93,14 +80,7 @@ class _PlantDetailState extends State<PlantDetail> {
                               Get.to(const EditPlantForm(),
                                   transition: Transition.rightToLeft),
                             })
-                    : InkWell(
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Icon(Icons.report, color: Colors.redAccent),
-                        ),
-                        onTap: () {
-                          reportPlant();
-                        })),
+                    : ReportButton()),
             body: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Container(

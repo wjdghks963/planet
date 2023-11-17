@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:planet/models/api/exception/ServerException.dart';
 import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/models/api/plant/plant_detail_model.dart';
 import 'package:get/get.dart';
@@ -8,7 +8,7 @@ import 'package:planet/services/api_manager.dart';
 import 'package:planet/utils/OAuth/token_storage.dart';
 import 'package:planet/utils/develop_domain.dart';
 
-class PlantsAipClient extends GetConnect {
+class PlantsApiClient extends GetConnect {
   TokenStorage tokenStorage = TokenStorage();
 
   Future<Map<String, String>> _getAuthHeader() async {
@@ -27,7 +27,11 @@ class PlantsAipClient extends GetConnect {
       headers: await _getAuthHeader(),
     );
 
-    return response;
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw ServerException.fromResponse(response.body);
+    }
   }
 
   // plants 추가
@@ -43,10 +47,10 @@ class PlantsAipClient extends GetConnect {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseBody =
-      jsonDecode(response.bodyString!);
+          jsonDecode(response.bodyString!);
       return responseBody['ok'] ?? false;
     } else {
-      return false;
+      throw ServerException.fromResponse(response.body);
     }
   }
 
@@ -67,7 +71,7 @@ class PlantsAipClient extends GetConnect {
           jsonDecode(response.bodyString!);
       return responseBody['ok'] ?? false;
     } else {
-      return false;
+      throw ServerException.fromResponse(response.body);
     }
   }
 
@@ -82,7 +86,7 @@ class PlantsAipClient extends GetConnect {
           jsonDecode(response.bodyString!);
       return responseBody['ok'] ?? false;
     } else {
-      return false;
+      throw ServerException.fromResponse(response.body);
     }
   }
 
@@ -91,23 +95,34 @@ class PlantsAipClient extends GetConnect {
     final response = await apiManager.performApiCall(() async =>
         get('$domain/plants/$plantId', headers: await _getAuthHeader()));
 
-    if (response?.statusCode == 200) {
-      return PlantDetailModel.fromJson(response!.body);
+    if (response.statusCode == 200) {
+      return PlantDetailModel.fromJson(response.body);
     } else {
-      return Future.error(response!.statusText!);
+      throw ServerException.fromResponse(response.body);
     }
   }
 
   // 랜덤 plants
   Future<Response> getRandomPlants() async {
-    return await get(
+    final response = await get(
       '$domain/plants/random',
     );
+
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw ServerException.fromResponse(response.body);
+    }
   }
 
   // plants recent pagenation
   Future<Response> getRecentPlants(int page) async {
-    return await get('$domain/plants?page=$page');
+    final response = await get('$domain/plants?page=$page');
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw ServerException.fromResponse(response.body);
+    }
   }
 
   // heart toggle
@@ -115,7 +130,10 @@ class PlantsAipClient extends GetConnect {
     final response = await apiManager.performApiCall(() async => post(
         "$domain/plants/heart/$plantId", {},
         headers: await _getAuthHeader()));
-
-    return response;
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw ServerException.fromResponse(response.body);
+    }
   }
 }

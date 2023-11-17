@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/models/api/plant/plant_summary_model.dart';
 import 'package:planet/services/api_manager.dart';
 import 'package:planet/services/plant_api_service.dart';
@@ -21,35 +22,41 @@ class PlantController extends GetxController {
     fetchRecentPlants();
   }
 
-  // List<PlantSummaryModel>
-
   void fetchPlants() async {
     final apiManager = ApiManager();
-    final plantsApiClient = PlantsAipClient();
+    final plantsApiClient = PlantsApiClient();
 
-    final response =
-        await apiManager.performApiCall(() => plantsApiClient.getPlants());
+    try {
+      final response =
+          await apiManager.performApiCall(() => plantsApiClient.getPlants());
 
-    myPlants.value = (response.body as List)
-        .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      myPlants.value = (response.body as List)
+          .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+    }
   }
 
   void fetchRandomPlants() async {
-    final plantsApiClient = PlantsAipClient();
+    final plantsApiClient = PlantsApiClient();
 
-    final response = await plantsApiClient.getRandomPlants();
+    try {
+      final response = await plantsApiClient.getRandomPlants();
 
-    randomPlants.value = (response.body as List)
-        .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      randomPlants.value = (response.body as List)
+          .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+    }
   }
 
   void fetchRecentPlants() async {
     if (isFetching.value) return;
     isFetching.value = true;
 
-    final plantsApiClient = PlantsAipClient();
+    final plantsApiClient = PlantsApiClient();
 
     final response = await plantsApiClient.getRecentPlants(currentPage);
 
