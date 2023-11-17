@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/period_box.dart';
 import 'package:planet/controllers/selected_plant_detail_controller.dart';
-import 'package:planet/screen/plant_detail.dart';
+import 'package:planet/screen/plant/plant_detail.dart';
 import 'package:planet/theme.dart';
 
 class DairyInfoCard extends StatelessWidget {
-  int uid;
+  int plantId;
   String? imgUrl;
   String nickName;
   int period;
 
   DairyInfoCard(
       {super.key,
-      required this.uid,
+      required this.plantId,
       this.imgUrl,
       required this.nickName,
       required this.period});
@@ -25,7 +25,9 @@ class DairyInfoCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        selectedPlantDetailController.selectDetail(uid, nickName, imgUrl);
+        selectedPlantDetailController.selectDetail(
+            plantId: plantId, nickName: nickName, imgUrl: imgUrl);
+
         Get.to(
           () => const PlantDetail(),
           transition: Transition.rightToLeft,
