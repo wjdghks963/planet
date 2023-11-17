@@ -58,16 +58,14 @@ class _AddPlantFormState extends State<AddPlantForm> {
       compressedData!,
     );
 
+    try {
+      await PlantsApiClient().addPlant(newPlant);
 
-    // API 호출
-    final response = await PlantsAipClient().addPlant(newPlant);
-
-    if (response == true) {
       final plantController = Get.find<PlantController>();
       plantController.fetchPlants();
       Get.back();
-    }else{
-     await Get.dialog(CustomAlertDialog(alertContent: "다시 시도해 주세요."));
+    } catch (e) {
+      await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
       Get.back();
     }
   }
@@ -144,11 +142,9 @@ class _AddPlantFormState extends State<AddPlantForm> {
               CustomTextButton(
                   content: "작성 완료",
                   backgroundColor: ColorStyles.mainAccent,
-
                   onPressed: () {
                     submitPlant();
                   }),
-
             ],
           ),
         ));

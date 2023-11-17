@@ -26,7 +26,7 @@ class EditPlantForm extends StatefulWidget {
 }
 
 class _EditPlantFormState extends State<EditPlantForm> {
-  final plantsApiClient = PlantsAipClient();
+  final plantsApiClient = PlantsApiClient();
 
   late SelectedPlantDetailController selectedController;
 
@@ -65,15 +65,19 @@ class _EditPlantFormState extends State<EditPlantForm> {
       compressedData!,
     );
 
-    // API 호출
-    var result = await plantsApiClient.editPlant(
-        newPlant, selectedController.selectedPlant.plantId!);
+    try {
+      final result = await plantsApiClient.editPlant(
+          newPlant, selectedController.selectedPlant.plantId!);
 
-    if (result == true) {
-      final plantController = Get.find<PlantController>();
-      plantController.fetchPlants();
+      if (result == true) {
+        final plantController = Get.find<PlantController>();
+        plantController.fetchPlants();
 
-      Get.offAll(const RootScreen(), arguments: {"selectedIndex": 1});
+        Get.offAll(const RootScreen(), arguments: {"selectedIndex": 1});
+      }
+    } catch (e) {
+      await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      Get.back();
     }
   }
 
@@ -82,14 +86,19 @@ class _EditPlantFormState extends State<EditPlantForm> {
         title: "삭제", content: "관련된 모든 데이터가 삭제되고 복구할 수 없습니다."));
 
     if (result == true) {
-      final response = await plantsApiClient
-          .removePlant(selectedController.selectedPlant.plantId!);
+      try {
+        final response = await plantsApiClient
+            .removePlant(selectedController.selectedPlant.plantId!);
 
-      if (response == true) {
-        final plantController = Get.find<PlantController>();
-        plantController.fetchPlants();
+        if (response == true) {
+          final plantController = Get.find<PlantController>();
+          plantController.fetchPlants();
 
-        Get.offAll(const RootScreen(), arguments: {"selectedIndex": 1});
+          Get.offAll(const RootScreen(), arguments: {"selectedIndex": 1});
+        }
+      } catch (e) {
+        await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+        Get.back();
       }
     }
   }

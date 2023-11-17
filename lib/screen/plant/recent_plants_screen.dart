@@ -43,7 +43,7 @@ class _RecentPlantsScreenState extends State<RecentPlantsScreen> {
         color: BgColor.mainColor,
         child: Obx(() {
           if (plantController.recentPlants.isEmpty &&
-              plantController.isFetching) {
+              plantController.isFetching.value) {
             // 데이터가 없고 로딩 중일 때
             return const Center(child: CircularProgressIndicator());
           } else if (plantController.recentPlants.isEmpty) {
@@ -71,7 +71,7 @@ class _RecentPlantsScreenState extends State<RecentPlantsScreen> {
                   },
                 ),
               ),
-              if (plantController.isFetching)
+              if (plantController.isFetching.value)
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Center(child: CircularProgressIndicator()),
