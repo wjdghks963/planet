@@ -24,6 +24,7 @@ class FormTextField extends StatelessWidget {
         ),
         const SizedBox(height: 10,),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             hintText: hintText,
             fillColor: Colors.white,

@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/heart_box.dart';
-import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/controllers/plant_controller.dart';
 import 'package:planet/controllers/selected_plant_detail_controller.dart';
 import 'package:planet/models/selected_plant_detail_model.dart';
-import 'package:planet/screen/plant_detail.dart';
+import 'package:planet/screen/plant/plant_detail.dart';
 import 'package:planet/theme.dart';
 
-// TODO:: uid만 받고 나머지는 http 통신으로 데이터 가져옴 controller에서 많은 데이터 수신 하지 말것
 class PlantInfoCard extends StatelessWidget {
-  int uid;
+  int plantId;
   String imgUrl;
   String nickName;
   int heart;
 
   PlantInfoCard(
       {super.key,
-      required this.uid,
+      required this.plantId,
       required this.imgUrl,
       required this.nickName,
       required this.heart});
@@ -27,8 +26,9 @@ class PlantInfoCard extends StatelessWidget {
         Get.find<SelectedPlantDetailController>();
 
     Future? goToDetail() {
-      selectedController.selectDetail(uid, nickName, imgUrl);
-      return Get.to(const PlantDetail());
+      selectedController.selectDetail(
+          plantId: plantId, nickName: nickName, imgUrl: imgUrl);
+      return Get.to(() => const PlantDetail());
     }
 
     return InkWell(

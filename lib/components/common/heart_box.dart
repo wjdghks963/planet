@@ -1,33 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/services/plant_api_service.dart';
 import 'package:planet/theme.dart';
 
 class HeartBox extends StatefulWidget {
   int heart;
-  bool? isMine;
   bool? toggle;
 
-  HeartBox({super.key, required this.heart, this.isMine, this.toggle});
+  HeartBox({super.key, required this.heart, this.toggle});
 
   @override
   State<HeartBox> createState() => _HeartBoxState();
 }
 
 class _HeartBoxState extends State<HeartBox> {
-  // 통신으로 함
-  bool _isLiked = false;
-  bool isMine = false;
+  late SelectedPlantDetailController selectedPlantDetailController;
+  bool? _isLiked;
 
   @override
   void initState() {
     super.initState();
-    isMine = widget.isMine ?? true;
+    selectedPlantDetailController = Get.find<SelectedPlantDetailController>();
+    _isLiked = selectedPlantDetailController.selectedPlant.hearted;
   }
 
+
   void likeToggle() {
-    if (widget.toggle != null) {
+    final plantsApiClient = PlantsAipClient();
+
+    final SelectedPlantDetailController selectedController =
+        Get.find<SelectedPlantDetailController>();
+
+    if (widget.toggle == true) {
+
+
+
+      plantsApiClient
+          .toggleHeartPlant(selectedController.selectedPlant.plantId!);
+
+
+
       setState(() {
-        _isLiked = !_isLiked;
+
+        //TODO:: 내가 눌렀는지 확인해야함
+        if (_isLiked == true) {
+          // 좋아요 취소
+          widget.heart--; // 좋아요 수 감소
+        } else {
+          // 좋아요
+          widget.heart++; // 좋아요 수 증가
+        }
+
+
+        _isLiked = !_isLiked!;
       });
     }
   }
@@ -39,7 +66,7 @@ class _HeartBoxState extends State<HeartBox> {
         child: Row(
           children: [
             widget.toggle == true
-                ? _isLiked
+                ? _isLiked == true
                     ? SvgPicture.asset(
                         'assets/icons/fill_heart.svg',
                       )

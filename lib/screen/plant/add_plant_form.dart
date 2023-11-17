@@ -5,10 +5,15 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
+import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/components/common/form_textfield.dart';
-import 'package:planet/controllers/plant_detail_controller.dart';
+import 'package:planet/controllers/plant_controller.dart';
+import 'package:planet/models/api/plant/plant_form_model.dart';
+import 'package:planet/services/api_manager.dart';
+import 'package:planet/services/plant_api_service.dart';
 import 'package:planet/theme.dart';
+import 'package:planet/utils/image_resizer.dart';
 
 class AddPlantForm extends StatefulWidget {
   const AddPlantForm({super.key});
@@ -18,6 +23,9 @@ class AddPlantForm extends StatefulWidget {
 }
 
 class _AddPlantFormState extends State<AddPlantForm> {
+  late TextEditingController nickNameController;
+  late TextEditingController scientificNameController;
+
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
 
@@ -29,13 +37,57 @@ class _AddPlantFormState extends State<AddPlantForm> {
     });
   }
 
+  Future<void> submitPlant() async {
+    String nickname = nickNameController.text;
+    String scientificName = scientificNameController.text;
+
+    if (_pickedImage == null) {
+      Get.dialog(CustomAlertDialog(alertContent: "사진을 등록해 주세요."));
+      return;
+    }
+    if (nickname == "" || scientificName == "") {
+      Get.dialog(CustomAlertDialog(alertContent: "빈칸을 전부 채워 주세요."));
+      return;
+    }
+
+    String? compressedData = await compressImage(_pickedImage!);
+
+    PlantFormModel newPlant = PlantFormModel(
+      nickname,
+      scientificName,
+      compressedData!,
+    );
+
+
+    // API 호출
+    final response = await PlantsAipClient().addPlant(newPlant);
+
+    if (response == true) {
+      final plantController = Get.find<PlantController>();
+      plantController.fetchPlants();
+      Get.back();
+    }else{
+     await Get.dialog(CustomAlertDialog(alertContent: "다시 시도해 주세요."));
+      Get.back();
+    }
+  }
+
+  @override
+  void initState() {
+    nickNameController = TextEditingController();
+    scientificNameController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    nickNameController.dispose();
+    scientificNameController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController nickNameController = TextEditingController();
-    TextEditingController scientificNameController = TextEditingController();
-
-    final PlantDetailViewModel controller = Get.find<PlantDetailViewModel>();
-
     return Scaffold(
         appBar: CustomAppBar(
           title: "식물 추가",
@@ -70,7 +122,7 @@ class _AddPlantFormState extends State<AddPlantForm> {
                   ),
                   child: _pickedImage != null
                       ? InkWell(
-                          onTap: () => getImage(ImageSource.camera),
+                          onTap: () => getImage(ImageSource.gallery),
                           child: Image.file(
                             File(_pickedImage!.path),
                             fit: BoxFit.fitWidth,
@@ -78,7 +130,7 @@ class _AddPlantFormState extends State<AddPlantForm> {
                           ),
                         )
                       : InkWell(
-                          onTap: () => getImage(ImageSource.camera),
+                          onTap: () => getImage(ImageSource.gallery),
                           child: Container(
                             color: Colors.white,
                             height: 300,
@@ -89,7 +141,14 @@ class _AddPlantFormState extends State<AddPlantForm> {
               const SizedBox(
                 height: 50,
               ),
-              CustomTextButton(content: "작성 완료", onPressed: () {})
+              CustomTextButton(
+                  content: "작성 완료",
+                  backgroundColor: ColorStyles.mainAccent,
+
+                  onPressed: () {
+                    submitPlant();
+                  }),
+
             ],
           ),
         ));

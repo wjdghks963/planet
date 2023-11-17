@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
-Future<Uint8List?> compressImage(File file) async {
+Future<String?> compressImage(XFile xFile) async {
+
+  File file = File(xFile.path);
   Uint8List? compressedData = await FlutterImageCompress.compressWithFile(
     file.absolute.path,
     quality: 80, // 조절 가능한 품질
@@ -11,5 +14,5 @@ Future<Uint8List?> compressImage(File file) async {
     minHeight: 500, // 최소 높이
   );
 
-  return compressedData;
+  return base64Encode(compressedData!);
 }

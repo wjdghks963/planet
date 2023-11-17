@@ -3,16 +3,30 @@ import 'package:planet/models/selected_plant_detail_model.dart';
 import 'package:planet/services/selected_plant_detail_service.dart';
 
 class SelectedPlantDetailController extends GetxController {
-
   SelectedPlantDetailService service = Get.put(SelectedPlantDetailService());
 
-  final Rx<SelectedPlantDetailModel> _selectedPlant = SelectedPlantDetailModel().obs;
+  final Rx<SelectedPlantDetailModel> _selectedPlant =
+      SelectedPlantDetailModel().obs;
+
   SelectedPlantDetailModel get selectedPlant => _selectedPlant.value;
 
-  void selectDetail(int uid, String nickName, String? imgUrl) {
-    SelectedPlantDetailModel model = service.selectedDetail(uid: uid, nickName: nickName, imgUrl: imgUrl);
+  void selectDetail(
+      {required int plantId,
+      required String nickName,
+      String? scientificName,
+      String? imgUrl,
+      int? heartCount,
+      bool? hearted,
+      String? createdAt}) {
+    SelectedPlantDetailModel model = service.selectedDetail(
+        plantId: plantId,
+        nickName: nickName,
+        imgUrl: imgUrl,
+        scientificName: scientificName,
+        heartCount: heartCount,
+        hearted: hearted,
+        createdAt:createdAt);
+
     _selectedPlant(model);
   }
-
-
 }
