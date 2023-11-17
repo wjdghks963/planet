@@ -7,13 +7,15 @@ class SelectedPlantDetailService {
       String? imgUrl,
       String? scientificName,
       int? heartCount,
-      bool? hearted}) {
+      bool? hearted,
+      String? createdAt}) {
     return SelectedPlantDetailModel(
         plantId: plantId,
         nickName: nickName,
         imgUrl: imgUrl,
         scientificName: scientificName,
         heartCount: heartCount,
-        hearted: hearted);
+        hearted: hearted,
+        createdAt: createdAt);
   }
 }

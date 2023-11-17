@@ -5,6 +5,7 @@ class SelectedPlantDetailModel {
   final String? scientificName;
   final int? heartCount;
   final bool? hearted;
+  final String? createdAt;
 
   SelectedPlantDetailModel(
       {this.plantId,
@@ -12,7 +13,8 @@ class SelectedPlantDetailModel {
       this.imgUrl,
       this.scientificName,
       this.heartCount,
-      this.hearted});
+      this.hearted,
+      this.createdAt});
 
   factory SelectedPlantDetailModel.fromJson(Map<String, dynamic> json) =>
       SelectedPlantDetailModel(

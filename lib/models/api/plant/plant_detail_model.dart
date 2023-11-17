@@ -8,8 +8,9 @@ class PlantDetailModel {
   final int period;
   final int heartCount;
   final List<DiaryDetailModel> diaries;
-  final bool mine;
+  final bool isMine;
   final bool hearted;
+  final String createdAt;
 
   PlantDetailModel(
       {required this.plantId,
@@ -19,8 +20,9 @@ class PlantDetailModel {
       required this.period,
       required this.heartCount,
       required this.diaries,
-      required this.mine,
-      required this.hearted});
+      required this.isMine,
+      required this.hearted,
+      required this.createdAt});
 
   factory PlantDetailModel.fromJson(Map<String, dynamic> json) {
     return PlantDetailModel(
@@ -32,7 +34,8 @@ class PlantDetailModel {
         heartCount: json['heartCount'],
         diaries: List<DiaryDetailModel>.from(
             json['diaries'].map((x) => DiaryDetailModel.fromJson(x))),
-        mine: json['mine'],
-        hearted: json['hearted']);
+        isMine: json['mine'],
+        hearted: json['hearted'],
+        createdAt: json['createdAt']);
   }
 }

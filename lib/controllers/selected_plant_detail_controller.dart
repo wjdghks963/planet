@@ -16,14 +16,16 @@ class SelectedPlantDetailController extends GetxController {
       String? scientificName,
       String? imgUrl,
       int? heartCount,
-      bool? hearted}) {
+      bool? hearted,
+      String? createdAt}) {
     SelectedPlantDetailModel model = service.selectedDetail(
         plantId: plantId,
         nickName: nickName,
         imgUrl: imgUrl,
         scientificName: scientificName,
         heartCount: heartCount,
-        hearted: hearted);
+        hearted: hearted,
+        createdAt:createdAt);
 
     _selectedPlant(model);
   }
