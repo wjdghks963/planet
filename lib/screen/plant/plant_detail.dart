@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_select_dialog.dart';
 import 'package:planet/components/common/report_button.dart';
 import 'package:planet/components/detail_info_container.dart';
 import 'package:planet/components/custom_calendar.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
-import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/models/api/plant/plant_detail_model.dart';
 import 'package:planet/screen/plant/edit_plant_form.dart';
 import 'package:planet/services/plant_api_service.dart';
@@ -53,9 +54,9 @@ class _PlantDetailState extends State<PlantDetail> {
             createdAt: _plantDetail!.createdAt);
       });
     } catch (e) {
-     // setState(() => isLoading = false);
-     await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
-     Get.back();
+      // setState(() => isLoading = false);
+      await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      Get.back();
     }
   }
 
@@ -64,66 +65,63 @@ class _PlantDetailState extends State<PlantDetail> {
     final SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
 
-    return SafeArea(
-        child: Scaffold(
-            backgroundColor: BgColor.mainColor,
-            appBar: CustomAppBar(
-                title:
-                    selectedPlantDetailController.selectedPlant.nickName ?? "",
-                rightComponent: _plantDetail?.isMine == true
-                    ? InkWell(
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Icon(Icons.create, color: Colors.black),
-                        ),
-                        onTap: () => {
-                              Get.to(const EditPlantForm(),
-                                  transition: Transition.rightToLeft),
-                            })
-                    : ReportButton()),
-            body: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15.0,
+    return Scaffold(
+        backgroundColor: BgColor.mainColor,
+        appBar: CustomAppBar(
+            title: selectedPlantDetailController.selectedPlant.nickName ?? "",
+            rightComponent: _plantDetail?.isMine == true
+                ? InkWell(
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Icon(Icons.create, color: Colors.black),
                     ),
-                    child: ListView(
-                      children: [
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20.0)),
-                          child: Image.network(
-                            'https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg',
-                            width: double.infinity,
-                            height: 300,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        DetailInfoContainer(
-                          nickName: _plantDetail?.nickName != null
-                              ? "${_plantDetail?.nickName}"
-                              : "${selectedPlantDetailController.selectedPlant.nickName}",
-                          scientificName: _plantDetail?.scientificName != null
-                              ? "${_plantDetail?.scientificName}"
-                              : "${selectedPlantDetailController.selectedPlant.scientificName}",
-                          period: _plantDetail?.period != null
-                              ? _plantDetail!.period
-                              : 0,
-                          heart: _plantDetail?.heartCount != null
-                              ? _plantDetail!.heartCount
-                              : 0,
-                          isMine: _plantDetail?.isMine != null
-                              ? _plantDetail!.isMine
-                              : false,
-                        ),
-                        CustomCalendar(
-                            _plantDetail?.diaries, _plantDetail?.isMine),
-                        const SizedBox(height: 30)
-                      ],
+                    onTap: () => {
+                          Get.off(const EditPlantForm(),
+                              transition: Transition.rightToLeft),
+                        })
+                : ReportButton()),
+        body: isLoading
+            ? Center(child: Lottie.asset('assets/lotties/loading_lottie.json'))
+            : Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15.0,
+                ),
+                child: ListView(
+                  children: [
+                    const SizedBox(
+                      height: 20,
                     ),
-                  )));
+                    ClipRRect(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(20.0)),
+                      child: Image.network(
+                        _plantDetail!.imgUrl,
+                        width: double.infinity,
+                        height: 300,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    DetailInfoContainer(
+                      nickName: _plantDetail?.nickName != null
+                          ? "${_plantDetail?.nickName}"
+                          : "${selectedPlantDetailController.selectedPlant.nickName}",
+                      scientificName: _plantDetail?.scientificName != null
+                          ? "${_plantDetail?.scientificName}"
+                          : "${selectedPlantDetailController.selectedPlant.scientificName}",
+                      period: _plantDetail?.period != null
+                          ? _plantDetail!.period
+                          : 0,
+                      heart: _plantDetail?.heartCount != null
+                          ? _plantDetail!.heartCount
+                          : 0,
+                      isMine: _plantDetail?.isMine != null
+                          ? _plantDetail!.isMine
+                          : false,
+                    ),
+                    CustomCalendar(_plantDetail?.diaries, _plantDetail?.isMine),
+                    const SizedBox(height: 30)
+                  ],
+                ),
+              ));
   }
 }

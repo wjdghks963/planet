@@ -1,16 +1,21 @@
 import 'package:get/get.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
+import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/models/api/plant/plant_summary_model.dart';
+import 'package:planet/screen/root.dart';
 import 'package:planet/services/api_manager.dart';
 import 'package:planet/services/plant_api_service.dart';
 
 class PlantController extends GetxController {
+  late final PlantsApiClient plantsApiClient;
+
   var myPlants = <PlantSummaryModel>[].obs;
   var randomPlants = <PlantSummaryModel>[].obs;
-  var recentPlants = <PlantSummaryModel>[].obs;
   var reachedEndOfPage = false.obs;
-  var isFetching = false.obs;
   var lastPageOfData = false.obs;
+  var isLoading = false.obs;
+
+  PlantController(this.plantsApiClient);
 
   int currentPage = 0;
 
@@ -19,13 +24,11 @@ class PlantController extends GetxController {
     super.onInit();
     fetchPlants();
     fetchRandomPlants();
-    fetchRecentPlants();
   }
 
   void fetchPlants() async {
     final apiManager = ApiManager();
     final plantsApiClient = PlantsApiClient();
-
     try {
       final response =
           await apiManager.performApiCall(() => plantsApiClient.getPlants());
@@ -52,36 +55,54 @@ class PlantController extends GetxController {
     }
   }
 
-  void fetchRecentPlants() async {
-    if (isFetching.value) return;
-    isFetching.value = true;
-
-    final plantsApiClient = PlantsApiClient();
-
-    final response = await plantsApiClient.getRecentPlants(currentPage);
-
-    if (response.statusCode == 200) {
-      final newPlants = (response.body as List)
-          .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      recentPlants.addAll(newPlants);
-
-      if (newPlants.length < 4) {
-        lastPageOfData.value = true;
-      } else {
-        currentPage++;
-      }
+  // CRUD
+  Future<void> addNewPlant(PlantFormModel newPlant) async {
+    isLoading(true);
+    try {
+      await plantsApiClient.addPlant(newPlant);
+      fetchPlants();
+      Get.back();
+    } catch (e) {
+      await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      Get.back();
+    } finally {
+      isLoading(false);
     }
-    isFetching.value = false;
   }
 
-  void incrementPage() {
-    if (!isFetching.value) {
-      if (lastPageOfData.value == false && reachedEndOfPage.value) {
-        fetchRecentPlants();
-      }
-      reachedEndOfPage.value = false; // 상태 초기화
+  Future<void> editPlant(PlantFormModel newPlant, int plantId) async {
+    isLoading(true);
+
+    try {
+      await plantsApiClient.editPlant(newPlant, plantId);
+
+      fetchPlants();
+
+      await Get.dialog(
+          CustomAlertDialog(alertContent: "사진은 바뀌기까지 몇분이 걸릴 수 있습니다."));
+
+      Get.back();
+    } catch (e) {
+      await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      Get.back();
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> removePlant(int plantId) async {
+    isLoading(true);
+
+    try {
+      await plantsApiClient.removePlant(plantId);
+
+      fetchPlants();
+      Get.back();
+    } catch (e) {
+      await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      Get.back();
+    } finally {
+      isLoading(false);
     }
   }
 }
