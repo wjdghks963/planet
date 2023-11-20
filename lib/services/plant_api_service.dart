@@ -117,7 +117,16 @@ class PlantsApiClient extends GetConnect {
 
   // plants recent pagenation
   Future<Response> getRecentPlants(int page) async {
-    final response = await get('$domain/plants?page=$page');
+    final response = await get('$domain/plants?type="recent"&page=$page');
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw ServerException.fromResponse(response.body);
+    }
+  }
+
+  Future<Response> getPopularPlants(int page) async {
+    final response = await get('$domain/plants?type="popular"&page=$page');
     if (response.statusCode == 200) {
       return response;
     } else {
