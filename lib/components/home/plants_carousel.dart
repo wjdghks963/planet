@@ -2,35 +2,33 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/home/plant_info_card.dart';
-import 'package:planet/controllers/plant_controller.dart';
+import 'package:planet/models/api/plant/plant_summary_model.dart';
 
-class RandomPlantsCarousel extends StatefulWidget {
-  const RandomPlantsCarousel({super.key});
+class PlantsCarousel extends StatefulWidget {
+  final List<PlantSummaryModel> plants;
+
+  const PlantsCarousel({super.key, required this.plants});
 
   @override
-  State<RandomPlantsCarousel> createState() => _RandomPlantsCarouselState();
+  State<PlantsCarousel> createState() => _PlantsCarouselState();
 }
 
-class _RandomPlantsCarouselState extends State<RandomPlantsCarousel> {
+class _PlantsCarouselState extends State<PlantsCarousel> {
   CarouselController carouselController = CarouselController();
-  final plantController = Get.find<PlantController>();
 
   @override
   Widget build(BuildContext context) {
+
     return Obx(() => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CarouselSlider(
               carouselController: carouselController,
-              items: plantController.randomPlants.map((plant) {
+              items: widget.plants.map((plant) {
                 return Builder(
                   builder: (BuildContext context) {
                     return PlantInfoCard(
-                      //imgUrl: plant.imgUrl,
-                      // TODO:: 이미지 바꿔야함
-                      imgUrl:
-                          'https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg',
-
+                      imgUrl: plant.imgUrl,
                       nickName: plant.nickName,
                       heart: plant.heartCount,
                       plantId: plant.plantId,
@@ -83,7 +81,6 @@ class _RandomPlantsCarouselState extends State<RandomPlantsCarousel> {
                 scrollDirection: Axis.horizontal,
               ),
             ),
-            // ... 여기에 추가 위젯들
           ],
         ));
   }
