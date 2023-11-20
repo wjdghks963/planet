@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
-import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/controllers/plant/plant_detail_controller.dart';
 import 'package:planet/models/api/diary/diary_detail_model.dart';
 import 'package:planet/screen/diary/diary_detail_screen.dart';
 import 'package:planet/screen/diary/diary_form.dart';
@@ -11,17 +11,14 @@ import 'package:planet/utils/calendar/event.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CustomCalendar extends StatefulWidget {
-  final List<DiaryDetailModel>? diaries;
-  final bool? isMine;
-
-  const CustomCalendar(this.diaries, this.isMine, {super.key});
+  const CustomCalendar({super.key});
 
   @override
   State<CustomCalendar> createState() => _CustomCalendarState();
 }
 
 class _CustomCalendarState extends State<CustomCalendar> {
-  late SelectedPlantDetailController selectedPlantDetailController;
+  late PlantDetailController plantDetailController;
 
   CalendarFormat format = CalendarFormat.month;
   DateFormat dateFormat = DateFormat('yyyy-MM-dd');
@@ -35,19 +32,12 @@ class _CustomCalendarState extends State<CustomCalendar> {
     return events[dateFormat.format(day)] ?? [];
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = dateFormat.format(DateTime.now());
-    _focusedDay = DateTime.now();
-    _createEventsMap();
-
-    selectedPlantDetailController = Get.find<SelectedPlantDetailController>();
-  }
-
   void _createEventsMap() {
     events.clear();
-    for (var diary in widget.diaries ?? []) {
+    List<DiaryDetailModel>? diaries =
+        plantDetailController.plantDetail.value?.diaries;
+
+    for (var diary in diaries ?? []) {
       final dateKey = diary.createdAt;
       if (events.containsKey(dateKey)) {
         events[dateKey]!.add(CalendarEvent(
@@ -83,7 +73,9 @@ class _CustomCalendarState extends State<CustomCalendar> {
       }
     }
 
-    if (eventsOnDay == null && widget.isMine == true) {
+    bool? isPlantMine = plantDetailController.plantDetail.value?.isMine;
+
+    if (eventsOnDay == null && isPlantMine == true) {
       // 일기 작성 페이지로 이동
       return Get.to(() => const DiaryForm(),
           transition: Transition.rightToLeft,
@@ -94,10 +86,22 @@ class _CustomCalendarState extends State<CustomCalendar> {
   }
 
   @override
+  void initState() {
+    plantDetailController = Get.find<PlantDetailController>();
+
+    super.initState();
+    _selectedDay = dateFormat.format(DateTime.now());
+    _focusedDay = DateTime.now();
+    _createEventsMap();
+  }
+
+  @override
   Widget build(BuildContext context) {
     String createdAtString =
-        selectedPlantDetailController.selectedPlant.createdAt!;
-    DateTime firstDay = DateTime.parse(createdAtString);
+        plantDetailController.plantDetail.value?.createdAt ?? "";
+    DateTime firstDay = createdAtString == ""
+        ? DateTime.now()
+        : DateTime.parse(createdAtString);
 
     return Container(
       decoration: BoxDecoration(
