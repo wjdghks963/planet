@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/models/api/plant/plant_summary_model.dart';
-import 'package:planet/screen/root.dart';
 import 'package:planet/services/api_manager.dart';
 import 'package:planet/services/plant_api_service.dart';
 
@@ -22,11 +21,11 @@ class PlantController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchPlants();
+    fetchMyPlants();
     fetchRandomPlants();
   }
 
-  void fetchPlants() async {
+  void fetchMyPlants() async {
     final apiManager = ApiManager();
     final plantsApiClient = PlantsApiClient();
     try {
@@ -60,7 +59,7 @@ class PlantController extends GetxController {
     isLoading(true);
     try {
       await plantsApiClient.addPlant(newPlant);
-      fetchPlants();
+      fetchMyPlants();
       Get.back();
     } catch (e) {
       await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
@@ -75,9 +74,7 @@ class PlantController extends GetxController {
 
     try {
       await plantsApiClient.editPlant(newPlant, plantId);
-
-      fetchPlants();
-
+      fetchMyPlants();
       await Get.dialog(
           CustomAlertDialog(alertContent: "사진은 바뀌기까지 몇분이 걸릴 수 있습니다."));
 
@@ -95,8 +92,7 @@ class PlantController extends GetxController {
 
     try {
       await plantsApiClient.removePlant(plantId);
-
-      fetchPlants();
+      fetchMyPlants();
       Get.back();
     } catch (e) {
       await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
