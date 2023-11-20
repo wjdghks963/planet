@@ -1,4 +1,6 @@
+import 'package:get/get.dart';
 import 'package:get/get_connect/connect.dart';
+import 'package:planet/main.dart';
 import 'package:planet/utils/OAuth/token_storage.dart';
 import 'package:planet/utils/develop_domain.dart';
 
@@ -26,6 +28,9 @@ class AuthApiService extends GetConnect {
             response.body['access_token'], response.body['refresh_token']);
 
         return true;
+      }
+      if (response.statusCode == 403) {
+        Get.offAll(() => const HomeScreen());
       }
       return false;
     } catch (e) {
