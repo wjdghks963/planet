@@ -9,7 +9,9 @@
         android:label="planet"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-
+        <meta-data
+                android:name="com.google.android.gms.ads.APPLICATION_ID"
+                android:value="ca-app-pub-7080497784773590~1519497628"/>
         <activity
                 android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
                 android:exported="true">
@@ -21,6 +23,18 @@
                 <!-- "kakao${YOUR_NATIVE_APP_KEY}://oauth" 형식의 앱 실행 스킴 설정 -->
                 <!-- 카카오 로그인 Redirect URI -->
                 <data android:scheme="kakao294bcf315044eea3b2a19efedab9dfef" android:host="oauth"/>
+            </intent-filter>
+        </activity>
+        <activity
+                android:name="com.aboutyou.dart_packages.sign_in_with_apple.SignInWithAppleCallback"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="signinwithapple" />
+                <data android:path="callback" />
             </intent-filter>
         </activity>
 
