@@ -74,7 +74,8 @@ class UserInfoScreen extends StatelessWidget {
             return ListView(
               children: [
                 UserProfile(
-                  name: userInfoController.userInfoDetail.value?.name ?? "",
+                  name:
+                      userInfoController.userInfoDetail.value?.name ?? "Planet",
                 ),
                 const SizedBox(
                   height: 80.0,

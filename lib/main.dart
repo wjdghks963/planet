@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
               body: Container(
         color: Colors.white,
         child: Center(
-          child: Column(
+          child: ListView(
             children: <Widget>[
               Image.asset(
                 'assets/images/logo.png',
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fit: BoxFit.cover,
               ),
               const SizedBox(
-                height: 80,
+                height: 30,
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),

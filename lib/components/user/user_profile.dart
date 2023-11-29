@@ -26,7 +26,7 @@ class _UserProfileState extends State<UserProfile> {
                 backgroundImage: AssetImage('assets/images/alter_image.png'),
               ),
               Expanded(
-                  child: Text(widget.name,
+                  child: Text(widget.name == "" ? "Planet" : widget.name,
                       textAlign: TextAlign.center,
                       style: TextStyles.normalStyle))
             ],
