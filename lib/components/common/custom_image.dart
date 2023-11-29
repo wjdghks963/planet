@@ -17,7 +17,7 @@ class CustomImage extends StatelessWidget {
       );
     } else {
       return Image.network(
-        imgUrl!,
+        imgUrl ?? "",
         width: double.infinity,
         height: height ?? 300,
         fit: BoxFit.cover,
@@ -47,6 +47,6 @@ class CustomImage extends StatelessWidget {
         },
       );
     }
-    ;
+
   }
 }

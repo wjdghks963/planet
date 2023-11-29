@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+리import 'package:planet/components/common/custom_image.dart';
 import 'package:planet/components/common/period_box.dart';
-import 'package:planet/controllers/selected_plant_detail_controller.dart';
+import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/screen/plant/plant_detail.dart';
 import 'package:planet/theme.dart';
 
-class DairyInfoCard extends StatelessWidget {
+class MyPlantDetailCard extends StatelessWidget {
   int plantId;
-  String? imgUrl;
+  String imgUrl;
   String nickName;
   int period;
 
-  DairyInfoCard(
+  MyPlantDetailCard(
       {super.key,
       required this.plantId,
-      this.imgUrl,
+      required this.imgUrl,
       required this.nickName,
       required this.period});
 
@@ -23,16 +24,15 @@ class DairyInfoCard extends StatelessWidget {
     final SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
 
-    return InkWell(
-      onTap: () {
-        selectedPlantDetailController.selectDetail(
-            plantId: plantId, nickName: nickName, imgUrl: imgUrl);
+    Future? goToDetail() {
+      selectedPlantDetailController.selectDetail(
+          plantId: plantId, nickName: nickName, imgUrl: imgUrl);
 
-        Get.to(
-          () => const PlantDetail(),
-          transition: Transition.rightToLeft,
-        );
-      },
+      return Get.to(() =>  PlantDetail());
+    }
+
+    return InkWell(
+      onTap: goToDetail,
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -41,18 +41,13 @@ class DairyInfoCard extends StatelessWidget {
         child: Column(
           children: <Widget>[
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
-              ),
-              child: Image.network(
-                imgUrl ??
-                    'https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg',
-                width: double.infinity,
-                height: 300,
-                fit: BoxFit.cover,
-              ),
-            ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10.0),
+                  topRight: Radius.circular(10.0),
+                ),
+                child: CustomImage(
+                  imgUrl: imgUrl,
+                )),
             Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 9.0, vertical: 10.0),
