@@ -5,28 +5,19 @@ import 'package:planet/models/api/plant/plant_detail_model.dart';
 import 'package:planet/services/plant_api_service.dart';
 
 class PlantDetailController extends GetxController {
-  late final PlantsApiClient plantsApiClient;
-
   var plantDetail = Rxn<PlantDetailModel>();
   var isLoading = false.obs;
 
-  PlantDetailController(this.plantsApiClient);
-
-  @override
-  void onInit() {
-    getPlantDetail();
-    super.onInit();
-  }
-
   // CRUD
   Future<void> getPlantDetail() async {
-    SelectedPlantDetailController selectedPlantDetailController =
-        Get.find<SelectedPlantDetailController>();
-
+    final PlantsApiClient plantsApiClient = PlantsApiClient();
     isLoading(true);
     try {
-      final plantDetailModel = await plantsApiClient
-          .getPlantDetail(selectedPlantDetailController.selectedPlant.plantId!);
+      SelectedPlantDetailController selectedPlantDetailController =
+          Get.find<SelectedPlantDetailController>();
+
+      final plantDetailModel = await plantsApiClient.getPlantDetail(
+          selectedPlantDetailController.selectedPlant.plantId ?? 1);
       plantDetail(plantDetailModel);
     } catch (e) {
       await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
