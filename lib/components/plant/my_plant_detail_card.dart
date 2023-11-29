@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-리import 'package:planet/components/common/custom_image.dart';
+import 'package:planet/components/common/custom_image.dart';
 import 'package:planet/components/common/period_box.dart';
 import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/screen/plant/plant_detail.dart';
