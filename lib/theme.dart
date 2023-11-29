@@ -20,6 +20,15 @@ class TextStyles {
       fontFamily: 'Poppins',
       fontWeight: FontWeight.w500);
 
+  static const whiteInfoTextStyle = TextStyle(
+      fontSize: 14,
+      color: Colors.white,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w500);
+
+
+
+
   static const dialogTextStyle = TextStyle(
       fontSize: 20,
       color: Colors.black,
@@ -41,6 +50,12 @@ class TextStyles {
   );
 
 
+  static const chatMessageTextStyle = TextStyle(
+      fontSize: 20,
+      color: Colors.white,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.w500);
+
   static const buttonTextStyle = TextStyle(
       fontSize: 16,
       color: Colors.white,
@@ -52,6 +67,8 @@ class TextStyles {
 class ColorStyles {
   static const Color darkGray = Color(0xff494949);
   static const Color mainAccent = Color(0xFF006400);
+  static const Color deepGreen = Color(0xFF4CAF50);
+
 }
 
 class BgColor {

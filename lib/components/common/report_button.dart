@@ -2,8 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_select_dialog.dart';
+import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
+import 'package:planet/services/user_api_service.dart';
+
+enum ReportType { plant, diary }
 
 class ReportButton extends StatelessWidget {
+  final ReportType reportType;
+  dynamic diaryId;
+
+  ReportButton({super.key, required this.reportType, this.diaryId});
+
   void reportPlant() async {
     final result = await Get.dialog<bool>(const CustomSelectDialog(
       title: "신고",
@@ -12,6 +21,16 @@ class ReportButton extends StatelessWidget {
     ));
 
     if (result != null && result) {
+      UserApiClient userApiClient = UserApiClient();
+      final SelectedPlantDetailController selectedPlantDetailController =
+          Get.find<SelectedPlantDetailController>();
+      if (reportType == ReportType.plant) {
+        await userApiClient
+            .reportPlant(selectedPlantDetailController.selectedPlant.plantId!);
+      } else {
+        await userApiClient.reportDiary(diaryId ?? 0);
+      }
+
       Get.dialog(CustomAlertDialog(alertContent: "신고 완료되었습니다."));
     }
   }

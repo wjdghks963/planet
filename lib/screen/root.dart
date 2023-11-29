@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:planet/controllers/plant/pagenation_plants_controller.dart';
+import 'package:planet/controllers/plant/plant_controller.dart';
+import 'package:planet/controllers/user/user_info_controller.dart';
 import 'package:planet/screen/plant/plants_screen.dart';
 import 'package:planet/screen/home.dart';
-import 'package:planet/screen/user_info/user_info.dart';
+import 'package:planet/screen/user_info/user_info_screen.dart';
+import 'package:planet/services/plant_api_service.dart';
+import 'package:planet/services/user_api_service.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({Key? key}) : super(key: key);
@@ -14,12 +20,10 @@ class RootScreen extends StatefulWidget {
 class _RootScreenWidgetState extends State<RootScreen> {
   int _selectedIndex = 0;
 
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 40, fontWeight: FontWeight.bold);
-  static  final List<Widget> _widgetOptions = <Widget>[
+  static final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
-     PlantsScreen(),
-    const UserInfo()
+    const PlantsScreen(),
+    const UserInfoScreen()
   ];
 
   void _onItemTapped(int index) {
@@ -30,30 +34,48 @@ class _RootScreenWidgetState extends State<RootScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(RecentPlantsController());
+    Get.put(PopularPlantsController());
+    Get.put(RandomPlantsController());
+    Get.put(PlantController(PlantsApiClient()));
+    Get.put(UserInfoController(UserApiClient()));
 
-    return SafeArea(
-        child: Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/icons/home.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/icons/pot.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/icons/user.svg'),
-            label: '',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    ));
+    return Container(
+      color: Colors.white,
+      child: SafeArea(
+          bottom: false,
+          child: Scaffold(
+            body: Center(
+              child: _widgetOptions.elementAt(_selectedIndex),
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Container(
+                    margin: const EdgeInsets.only(top: 10.0),
+                    child: SvgPicture.asset('assets/icons/home.svg'),
+                  ),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Container(
+                    margin: const EdgeInsets.only(top: 10.0),
+                    child: SvgPicture.asset('assets/icons/pot.svg'),
+                  ),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Container(
+                    margin: const EdgeInsets.only(top: 10.0),
+                    child: SvgPicture.asset('assets/icons/user.svg'),
+                  ),
+                  label: '',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            ),
+          )),
+    );
   }
 }

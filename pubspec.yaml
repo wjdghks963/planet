@@ -4,7 +4,7 @@ description: A new Flutter project.
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
   sdk: '>=2.19.4 <3.0.0'
@@ -29,6 +29,14 @@ dependencies:
   google_sign_in: ^6.1.6
   flutter_native_splash: ^2.2.19
   flutter_secure_storage: ^8.1.0
+  kakao_flutter_sdk_user: ^1.7.0
+  lottie: ^2.3.2
+  google_mobile_ads: ^3.1.0
+  permission_handler: ^11.0.1
+  flutter_dotenv: ^5.1.0
+  http: ^0.13.6
+  sign_in_with_apple: ^5.0.0
+  device_info_plus: ^9.1.1
 
 
 
@@ -58,6 +66,8 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/lotties/loading_lottie.json
+    - .env
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -101,6 +111,8 @@ flutter_native_splash:
 
 
   android_12:
+    color: "#FFFFFF"
+    image: assets/images/logo.png
 
   #image: assets/android12splash.png
 
