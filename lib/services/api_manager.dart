@@ -1,4 +1,6 @@
-import 'package:get/get_connect/connect.dart';
+import 'package:get/get.dart';
+import 'package:planet/main.dart';
+import 'package:planet/models/api/exception/ServerException.dart';
 import 'package:planet/services/auth_api_service.dart';
 
 class ApiManager {
@@ -7,28 +9,27 @@ class ApiManager {
   Future<Response> performApiCall(Future<Response> Function() apiCall) async {
     try {
       var response = await apiCall();
+      // 성공 응답 처리
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response;
       }
+      // 인증 실패 처리
       if (response.statusCode == 401) {
-        // 토큰 갱신 시도
-        if (await authApiService.refreshToken()) {
-          // 토큰 갱신 성공 후 재시도
+        // 토큰 갱신 후 재시도
+        final isRefreshed = await authApiService.refreshToken();
+        if (isRefreshed) {
           response = await apiCall();
           if (response.statusCode == 200 || response.statusCode == 201) {
             return response;
           }
+        } else {
+          Get.offAll(() => const LoginScreen());
         }
       }
-      // 오류 로그 출력
-      print("API 오류: ${response.statusCode}");
-      return response;
+      throw ServerException.fromResponse(response.body);
     } catch (e) {
       print("API 호출 중 예외 발생: $e");
-      return const Response(
-        statusCode: 500, // 또는 다른 오류 코드
-        statusText: '서버 오류',
-      );
+      rethrow;
     }
   }
 }
