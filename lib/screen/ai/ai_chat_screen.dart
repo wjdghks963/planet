@@ -7,11 +7,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:planet/components/chat/chat_message_bubble.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
+import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/controllers/chat/chat_controller.dart';
 import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/models/api/chat/chat_message.dart';
 import 'package:planet/services/open_ai_service.dart';
 import 'package:planet/theme.dart';
+import 'package:planet/utils/image_select.dart';
 
 enum AiChatType { detail, question }
 
@@ -31,16 +33,26 @@ class _AIChatScreenState extends State<AIChatScreen> {
   final ScrollController scrollController = ScrollController();
 
   final FocusNode textFocusNode = FocusNode();
-  XFile? imageFile;
 
-  Future<void> pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? selectedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (selectedImage != null) {
+  final ImagePicker _picker = ImagePicker();
+  XFile? _pickedImage;
+
+  void getImage(ImageSource source) async {
+    var permissionGranted = await requestImgPermission();
+    if (permissionGranted) {
+      selectedImg(source);
+    }
+  }
+
+  void selectedImg(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+
       setState(() {
-        imageFile = selectedImage;
+        _pickedImage = image;
       });
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: "지원하지 않는 파일 형식입니다."));
     }
   }
 
@@ -48,8 +60,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
     var messages = chatController.messages;
 
     if (textEditingController.text.isNotEmpty) {
-      if (imageFile != null) {
-        File selectedImgFile = File(imageFile!.path);
+      if (_pickedImage != null) {
+        File selectedImgFile = File(_pickedImage!.path);
         List<int> imageBytes = await selectedImgFile.readAsBytes();
         String base64Image = base64Encode(imageBytes);
 
@@ -57,9 +69,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
             textEditingController.text, "data:image/jpeg;base64,$base64Image");
 
         messages.add(ChatMessage(
-            text: textEditingController.text, imagePath: imageFile!.path));
+            text: textEditingController.text, imagePath: _pickedImage!.path));
         setState(() {
-          imageFile = null; // Reset the image file after sending
+          _pickedImage = null; // Reset the image file after sending
         });
       } else {
         chatController.aiOnlyText(textEditingController.text);
@@ -139,9 +151,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
               },
             ));
           }),
-          if (imageFile != null)
+          if (_pickedImage != null)
             Image.file(
-              File(imageFile!.path),
+              File(_pickedImage!.path),
               width: 150,
               height: 150,
             ),
@@ -152,7 +164,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 widget.aiChatType == AiChatType.question
                     ? IconButton(
                         icon: const Icon(Icons.photo),
-                        onPressed: pickImage,
+                        onPressed: () => getImage(ImageSource.gallery),
                       )
                     : const SizedBox(
                         width: 25.0,
