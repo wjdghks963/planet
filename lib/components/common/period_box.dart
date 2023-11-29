@@ -4,7 +4,7 @@ import 'package:planet/theme.dart';
 
 
 class PeriodBox extends StatelessWidget {
-  int? period;
+  int period;
 
   PeriodBox({required this.period});
 
@@ -14,7 +14,7 @@ class PeriodBox extends StatelessWidget {
       SvgPicture.asset('assets/icons/clock.svg'),
       const SizedBox(width: 10),
       Text(
-        "D+$period" ?? "D+0",
+        "D+$period",
         style: TextStyles.infoTextStyle,
       ),
     ]);
