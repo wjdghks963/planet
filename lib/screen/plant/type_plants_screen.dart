@@ -6,7 +6,7 @@ import 'package:planet/controllers/plant/pagenation_plants_controller.dart';
 import 'package:planet/models/api/plant/plant_summary_model.dart';
 import 'package:planet/theme.dart';
 
-enum PlantType { popular, recent }
+enum PlantType { popular, recent, hearts }
 
 class TypePlantsScreen extends StatefulWidget {
   final PlantType plantType;
@@ -22,19 +22,33 @@ class _TypePlantsScreenState extends State<TypePlantsScreen> {
   late List<PlantSummaryModel> typePlants;
   final ScrollController scrollController = ScrollController();
 
+  String getTitleForPlantType(PlantType plantType) {
+    switch (plantType) {
+      case PlantType.popular:
+        return "인기";
+      case PlantType.recent:
+        return "최신";
+      case PlantType.hearts:
+        return "내가 좋아하는";
+      default:
+        return "";
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     scrollController.addListener(_scrollListener);
 
     if (widget.plantType == PlantType.popular) {
-       plantController =
-          Get.find<PopularPlantsController>();
-
+      plantController = Get.put(PopularPlantsController());
       typePlants = plantController.popularPlants;
+    } else if (widget.plantType == PlantType.recent) {
+      plantController = Get.put(RecentPlantsController());
+      typePlants = plantController.recentPlants;
     } else {
-      plantController = Get.find<RecentPlantsController>();
-     typePlants = plantController.recentPlants;
+      plantController = Get.put(HeartPlantsController());
+      typePlants = plantController.heartPlants;
     }
   }
 
@@ -50,19 +64,18 @@ class _TypePlantsScreenState extends State<TypePlantsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: widget.plantType == PlantType.popular ? "인기" : "최신",
+        title: getTitleForPlantType(widget.plantType),
       ),
       body: Container(
         width: double.infinity,
         color: BgColor.mainColor,
         child: Obx(() {
-          if (typePlants.isEmpty &&
-              plantController.isFetching.value) {
+          if (typePlants.isEmpty && plantController.isFetching.value) {
             // 데이터가 없고 로딩 중일 때
             return const Center(child: CircularProgressIndicator());
           } else if (typePlants.isEmpty) {
             // 데이터가 없을 때
-            return const Center(child: Text('최신 데이터가 없습니다.'));
+            return const Center(child: Text('데이터가 없습니다.'));
           }
           return Column(
             children: [
