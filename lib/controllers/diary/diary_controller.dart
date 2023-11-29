@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/controllers/plant/plant_detail_controller.dart';
@@ -31,6 +32,7 @@ class DiaryController extends GetxController {
   Future<void> editDiary(int diaryId, DiaryFormDTO diaryFormDTO) async {
     isLoading(true);
     try {
+      PaintingBinding.instance.imageCache.clear();
       await diaryApiClient.editForm(diaryId, diaryFormDTO);
       Get.back();
     } catch (e) {
