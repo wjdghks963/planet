@@ -1,56 +1,36 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/models/api/plant/plant_summary_model.dart';
-import 'package:planet/services/api_manager.dart';
 import 'package:planet/services/plant_api_service.dart';
 
 class PlantController extends GetxController {
   late final PlantsApiClient plantsApiClient;
 
   var myPlants = <PlantSummaryModel>[].obs;
-  var randomPlants = <PlantSummaryModel>[].obs;
-  var reachedEndOfPage = false.obs;
-  var lastPageOfData = false.obs;
   var isLoading = false.obs;
 
   PlantController(this.plantsApiClient);
 
-  int currentPage = 0;
-
   @override
   void onInit() {
-    super.onInit();
     fetchMyPlants();
-    fetchRandomPlants();
+    super.onInit();
   }
 
   void fetchMyPlants() async {
-    final apiManager = ApiManager();
-    final plantsApiClient = PlantsApiClient();
-    try {
-      final response =
-          await apiManager.performApiCall(() => plantsApiClient.getPlants());
-
-      myPlants.value = (response.body as List)
-          .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
-    }
-  }
-
-  void fetchRandomPlants() async {
-    final plantsApiClient = PlantsApiClient();
+    isLoading(true);
 
     try {
-      final response = await plantsApiClient.getRandomPlants();
-
-      randomPlants.value = (response.body as List)
+      final response = await plantsApiClient.getPlants();
+      myPlants((response.body as List)
           .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+          .toList());
     } catch (e) {
       Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+    } finally {
+      isLoading(false);
     }
   }
 
@@ -74,9 +54,11 @@ class PlantController extends GetxController {
 
     try {
       await plantsApiClient.editPlant(newPlant, plantId);
+      PaintingBinding.instance.imageCache.clear();
+
       fetchMyPlants();
       await Get.dialog(
-          CustomAlertDialog(alertContent: "사진은 바뀌기까지 몇분이 걸릴 수 있습니다."));
+          CustomAlertDialog(alertContent: "사진은 바뀌기까지 몇분이 걸릴 수도 있습니다."));
 
       Get.back();
     } catch (e) {
@@ -97,6 +79,37 @@ class PlantController extends GetxController {
     } catch (e) {
       await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
       Get.back();
+    } finally {
+      isLoading(false);
+    }
+  }
+}
+
+class RandomPlantsController extends GetxController {
+  var myPlants = <PlantSummaryModel>[].obs;
+  var randomPlants = <PlantSummaryModel>[].obs;
+  var reachedEndOfPage = false.obs;
+  var isLoading = false.obs;
+
+  @override
+  void onInit() {
+    fetchRandomPlants();
+    super.onInit();
+  }
+
+  void fetchRandomPlants() async {
+    final PlantsApiClient plantsApiClient = PlantsApiClient();
+
+    isLoading(true);
+
+    try {
+      final response = await plantsApiClient.getRandomPlants();
+
+      randomPlants((response.body as List)
+          .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
+          .toList());
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
     } finally {
       isLoading(false);
     }
