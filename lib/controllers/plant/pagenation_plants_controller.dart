@@ -11,8 +11,8 @@ class RecentPlantsController extends GetxController {
 
   @override
   void onInit() {
-    super.onInit();
     fetchRecentPlants();
+    super.onInit();
   }
 
   void fetchRecentPlants() async {
@@ -57,11 +57,7 @@ class PopularPlantsController extends GetxController {
   var reachedEndOfPage = false.obs;
 
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchPopularPlants();
-  }
+
 
   void fetchPopularPlants() async {
     if (isFetching.value) return;
@@ -69,9 +65,8 @@ class PopularPlantsController extends GetxController {
 
     final plantsApiClient = PlantsApiClient();
 
-    final response = await plantsApiClient.getRecentPlants(currentPage);
+    final response = await plantsApiClient.getPopularPlants(currentPage);
 
-    print(response.body.toString());
 
     if (response.statusCode == 200) {
       final newPlants = (response.body as List)
@@ -93,6 +88,63 @@ class PopularPlantsController extends GetxController {
     if (!isFetching.value) {
       if (lastPageOfData.value == false && reachedEndOfPage.value) {
         fetchPopularPlants();
+      }
+      reachedEndOfPage.value = false;
+    }
+  }
+
+  @override
+  void onInit() {
+    fetchPopularPlants();
+    super.onInit();
+  }
+}
+
+
+
+class HeartPlantsController extends GetxController {
+  var currentPage = 0;
+  var lastPageOfData = false.obs;
+  var heartPlants = <PlantSummaryModel>[].obs;
+  var isFetching = false.obs;
+  var reachedEndOfPage = false.obs;
+
+
+  @override
+  void onInit() {
+    fetchHeartPlants();
+    super.onInit();
+  }
+
+  void fetchHeartPlants() async {
+    if (isFetching.value) return;
+    isFetching.value = true;
+
+    final plantsApiClient = PlantsApiClient();
+
+    final response = await plantsApiClient.getHeartPlants(currentPage);
+
+
+    if (response.statusCode == 200) {
+      final newPlants = (response.body as List)
+          .map((e) => PlantSummaryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      heartPlants.addAll(newPlants);
+
+      if (newPlants.length < 4) {
+        lastPageOfData.value = true;
+      } else {
+        currentPage++;
+      }
+    }
+    isFetching.value = false;
+  }
+
+  void incrementPage() {
+    if (!isFetching.value) {
+      if (lastPageOfData.value == false && reachedEndOfPage.value) {
+        fetchHeartPlants();
       }
       reachedEndOfPage.value = false;
     }
