@@ -9,7 +9,7 @@ Future<String?> compressImage(XFile xFile) async {
   File file = File(xFile.path);
   Uint8List? compressedData = await FlutterImageCompress.compressWithFile(
     file.absolute.path,
-    quality: 80, // 조절 가능한 품질
+    quality: 40, // 조절 가능한 품질
     minWidth: 500, // 최소 너비
     minHeight: 500, // 최소 높이
   );
