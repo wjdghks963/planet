@@ -33,7 +33,6 @@ class OpenAiApiClient {
       final response = await http.post(url, headers: headers, body: body);
 
       var data = utf8.decode(response.bodyBytes);
-      print("TEXT API :: ${data}");
       var decodedData = json.decode(data);
 
       var choices = decodedData["choices"] as List;
@@ -82,8 +81,6 @@ class OpenAiApiClient {
 
     try {
       final response = await http.post(url, headers: headers, body: body);
-      print("IMAGE API :: ${json.decode(response.body)}");
-      print("IMAGE API :: ${response.statusCode}");
 
       var decodedData = json.decode(response.body);
       var choices = decodedData["choices"] as List;
@@ -135,8 +132,6 @@ class OpenAiApiClient {
 
     try {
       final response = await http.post(url, headers: headers, body: body);
-      print("IMAGE API :: ${json.decode(response.body)}");
-      print("IMAGE API :: ${response.statusCode}");
 
       var decodedData = json.decode(response.body);
       var choices = decodedData["choices"] as List;
