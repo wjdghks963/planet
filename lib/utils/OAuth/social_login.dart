@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:http/http.dart' as http;
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/models/api/exception/ServerException.dart';
 import 'package:planet/models/api/user/login_response.dart';
@@ -48,6 +49,7 @@ class SocialLogin {
       try {
         await apiClient.sendLoginData(email, name ?? "");
       } catch (e) {
+        print("LOGIN ERROR" + e.toString());
         Get.dialog(CustomAlertDialog(alertContent: e.toString()));
       }
 
@@ -59,7 +61,7 @@ class SocialLogin {
 
   void _loginWithKakao() async {
     try {
-      await UserApi.instance.loginWithKakaoAccount();
+      var result = await UserApi.instance.loginWithKakaoAccount();
       KakaoUser.User userData = await UserApi.instance.me();
       String? name = userData.kakaoAccount?.profile?.nickname;
       String? email = userData.kakaoAccount?.email;
@@ -79,9 +81,6 @@ class SocialLogin {
 
   void _loginWithApple() async {
     try {
-      await Get.dialog(CustomAlertDialog(
-          alertContent: "이메일을 허용하지 않을 시\n같은 계정이어도 다른 소셜 로그인 시 다른 계정이 생성됩니다."));
-
       final credential = await SignInWithApple.getAppleIDCredential(scopes: [
         AppleIDAuthorizationScopes.email,
         AppleIDAuthorizationScopes.fullName,
@@ -111,23 +110,27 @@ class SocialLogin {
   }
 }
 
-class APIClient extends GetConnect {
-  Future<Response> sendLoginData(String email, String name) async {
+class APIClient {
+  Future<http.Response> sendLoginData(String email, String name) async {
     String domain = DevelopDomain().run();
     final tokenStorage = TokenStorage();
 
-    final response = await post(
-      '$domain/users/login',
-      {'email': email, 'name': name},
+    final response = await http.post(
+      Uri.parse('$domain/users/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({'email': email, 'name': name}),
     );
 
     if (response.statusCode == 200) {
-      final result = LoginResponse.fromJson(response.body);
+      final result = LoginResponse.fromJson(jsonDecode(response.body));
       await tokenStorage.saveToken(result.accessToken, result.refreshToken);
 
-      return await Get.to(() => const RootScreen());
+      Get.offAll(() => const RootScreen());
+      return response;
     } else {
-      throw ServerException.fromResponse(response.body);
+      throw ServerException("서버 응답 에러: ${response.body}");
     }
   }
 }
