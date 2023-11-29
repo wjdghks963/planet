@@ -28,7 +28,7 @@ class _HeartBoxState extends State<HeartBox>
   @override
   void initState() {
     super.initState();
-    plantDetailController = Get.find<PlantDetailController>();
+    plantDetailController = Get.put(PlantDetailController());
     _isLiked = plantDetailController.plantDetail.value?.hearted;
 
     _animationController = AnimationController(
@@ -56,7 +56,7 @@ class _HeartBoxState extends State<HeartBox>
         Get.find<SelectedPlantDetailController>();
 
     if (widget.toggle == true) {
-        _animationController!.forward();
+      _animationController!.forward();
       try {
         plantsApiClient
             .toggleHeartPlant(selectedController.selectedPlant.plantId!);
