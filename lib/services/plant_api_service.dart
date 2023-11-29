@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/models/api/exception/ServerException.dart';
 import 'package:planet/models/api/plant/plant_form_model.dart';
 import 'package:planet/models/api/plant/plant_detail_model.dart';
@@ -22,20 +23,15 @@ class PlantsApiClient extends GetConnect {
 
   // 내 plants 조회
   Future<Response> getPlants() async {
-    final response = await get(
-      '$domain/plants/my',
-      headers: await _getAuthHeader(),
-    );
-
-    if (response.statusCode == 200) {
-      return response;
-    } else {
-      throw ServerException.fromResponse(response.body);
-    }
+    final response = await apiManager.performApiCall(() async => get(
+          '$domain/plants/my',
+          headers: await _getAuthHeader(),
+        ));
+    return response;
   }
 
   // plants 추가
-  Future<bool> addPlant(PlantFormModel newPlant) async {
+  Future<Response> addPlant(PlantFormModel newPlant) async {
     final response = await apiManager.performApiCall(() async => post(
         '$domain/plants/add',
         {
@@ -45,13 +41,7 @@ class PlantsApiClient extends GetConnect {
         },
         headers: await _getAuthHeader()));
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseBody =
-          jsonDecode(response.bodyString!);
-      return responseBody['ok'] ?? false;
-    } else {
-      throw ServerException.fromResponse(response.body);
-    }
+    return response;
   }
 
   // plants 수정
@@ -95,11 +85,7 @@ class PlantsApiClient extends GetConnect {
     final response = await apiManager.performApiCall(() async =>
         get('$domain/plants/$plantId', headers: await _getAuthHeader()));
 
-    if (response.statusCode == 200) {
-      return PlantDetailModel.fromJson(response.body);
-    } else {
-      throw ServerException.fromResponse(response.body);
-    }
+    return PlantDetailModel.fromJson(response.body);
   }
 
   // 랜덤 plants
@@ -117,7 +103,8 @@ class PlantsApiClient extends GetConnect {
 
   // plants recent pagenation
   Future<Response> getRecentPlants(int page) async {
-    final response = await get('$domain/plants?type="recent"&page=$page');
+    final response = await get('$domain/plants?type=recent&page=$page');
+
     if (response.statusCode == 200) {
       return response;
     } else {
@@ -126,7 +113,20 @@ class PlantsApiClient extends GetConnect {
   }
 
   Future<Response> getPopularPlants(int page) async {
-    final response = await get('$domain/plants?type="popular"&page=$page');
+    final response = await get('$domain/plants?type=popular&page=$page');
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw ServerException.fromResponse(response.body);
+    }
+  }
+
+  Future<Response> getHeartPlants(int page) async {
+    final response = await apiManager.performApiCall(() async => get(
+        '$domain/plants?type=heart&page=$page',
+        headers: await _getAuthHeader()));
+
+
     if (response.statusCode == 200) {
       return response;
     } else {
@@ -136,13 +136,14 @@ class PlantsApiClient extends GetConnect {
 
   // heart toggle
   Future<Response?> toggleHeartPlant(int plantId) async {
-    final response = await apiManager.performApiCall(() async => post(
-        "$domain/plants/heart/$plantId", {},
-        headers: await _getAuthHeader()));
-    if (response.statusCode == 200) {
+    try {
+      final response = await apiManager.performApiCall(() async => post(
+          "$domain/plants/heart/$plantId", {},
+          headers: await _getAuthHeader()));
       return response;
-    } else {
-      throw ServerException.fromResponse(response.body);
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
     }
+    return null;
   }
 }
