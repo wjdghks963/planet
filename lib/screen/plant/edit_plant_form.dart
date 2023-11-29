@@ -7,17 +7,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
-import 'package:planet/components/common/custom_image.dart';
 import 'package:planet/components/common/custom_select_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
 import 'package:planet/components/common/form_textfield.dart';
 import 'package:planet/controllers/plant/plant_controller.dart';
+import 'package:planet/controllers/plant/plant_detail_controller.dart';
 import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/models/api/plant/plant_form_model.dart';
-import 'package:planet/screen/root.dart';
 import 'package:planet/services/plant_api_service.dart';
 import 'package:planet/theme.dart';
 import 'package:planet/utils/image_resizer.dart';
+import 'package:planet/utils/image_select.dart';
 
 class EditPlantForm extends StatefulWidget {
   const EditPlantForm({super.key});
@@ -32,18 +32,29 @@ class _EditPlantFormState extends State<EditPlantForm> {
   late PlantController plantController;
   late SelectedPlantDetailController selectedController;
 
-  late TextEditingController nickNameController;
-  late TextEditingController scientificNameController;
+  TextEditingController nickNameController = TextEditingController();
+  TextEditingController scientificNameController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
 
   void getImage(ImageSource source) async {
-    final XFile? image = await _picker.pickImage(source: source);
+    var permissionGranted = await requestImgPermission();
+    if (permissionGranted) {
+      selectedImg(source);
+    }
+  }
 
-    setState(() {
-      _pickedImage = image;
-    });
+  void selectedImg(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+
+      setState(() {
+        _pickedImage = image;
+      });
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: "지원하지 않는 파일 형식입니다."));
+    }
   }
 
   Future<void> submitPlant() async {
@@ -83,15 +94,16 @@ class _EditPlantFormState extends State<EditPlantForm> {
 
   @override
   void initState() {
-    plantController = Get.find<PlantController>();
+    PlantDetailController plantDetailController =
+        Get.find<PlantDetailController>();
     selectedController = Get.find<SelectedPlantDetailController>();
+    plantController = Get.find<PlantController>();
 
-    nickNameController = TextEditingController();
-    scientificNameController = TextEditingController();
-
-    nickNameController.text = selectedController.selectedPlant.nickName!;
+    nickNameController.text =
+        plantDetailController.plantDetail.value?.nickName ?? "";
     scientificNameController.text =
-        selectedController.selectedPlant.scientificName!;
+        plantDetailController.plantDetail.value?.scientificName ?? "";
+
     super.initState();
   }
 
@@ -109,7 +121,7 @@ class _EditPlantFormState extends State<EditPlantForm> {
           title: "식물 편집",
         ),
         body: Obx(() {
-          if (plantController.isLoading == true) {
+          if (plantController.isLoading.value == true) {
             return Center(
                 child: Lottie.asset('assets/lotties/loading_lottie.json'));
           } else {
@@ -156,10 +168,9 @@ class _EditPlantFormState extends State<EditPlantForm> {
                               child: Container(
                                 color: Colors.white,
                                 height: 300,
-                                child: CustomImage(
-                                  imgUrl:
-                                      selectedController.selectedPlant.imgUrl!,
-                                ),
+                                padding: EdgeInsets.all(100),
+                                child:
+                                    SvgPicture.asset('assets/icons/image.svg'),
                               ),
                             )),
                   const SizedBox(

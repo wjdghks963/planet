@@ -9,13 +9,14 @@ import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/components/common/custom_select_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
-import 'package:planet/controllers/diary_controller.dart';
+import 'package:planet/controllers/diary/diary_controller.dart';
 import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/models/api/diary/diary_detail_model.dart';
 import 'package:planet/models/api/diary/diary_form_dto.dart';
 import 'package:planet/services/diary_api_service.dart';
 import 'package:planet/theme.dart';
 import 'package:planet/utils/image_resizer.dart';
+import 'package:planet/utils/image_select.dart';
 
 class DiaryEditForm extends StatefulWidget {
   const DiaryEditForm({super.key});
@@ -34,11 +35,22 @@ class _DiaryEditFormState extends State<DiaryEditForm> {
   XFile? _pickedImage;
 
   void getImage(ImageSource source) async {
-    final XFile? image = await _picker.pickImage(source: source);
+    var permissionGranted = await requestImgPermission();
+    if (permissionGranted) {
+      selectedImg(source);
+    }
+  }
 
-    setState(() {
-      _pickedImage = image;
-    });
+  void selectedImg(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+
+      setState(() {
+        _pickedImage = image;
+      });
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: "지원하지 않는 파일 형식입니다."));
+    }
   }
 
   bool isPublic = false;
@@ -47,13 +59,16 @@ class _DiaryEditFormState extends State<DiaryEditForm> {
     SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
 
+    DiaryController diaryController =
+        Get.put(DiaryController(DiaryApiClient()));
+
     String content = _contentController.text;
 
     if (_pickedImage == null) {
       Get.dialog(CustomAlertDialog(alertContent: "사진을 등록해 주세요."));
       return;
     }
-    if (content == "" ) {
+    if (content == "") {
       Get.dialog(CustomAlertDialog(alertContent: "빈칸을 전부 채워 주세요."));
       return;
     }
@@ -81,9 +96,7 @@ class _DiaryEditFormState extends State<DiaryEditForm> {
 
   @override
   void initState() {
-    diaryController = Get.find<DiaryController>();
     _contentController.text = diaryDetail.content;
-
     super.initState();
   }
 
@@ -91,13 +104,15 @@ class _DiaryEditFormState extends State<DiaryEditForm> {
   Widget build(BuildContext context) {
     final SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
+    final DiaryController diaryController =
+        Get.put(DiaryController(DiaryApiClient()));
 
     return Scaffold(
         appBar: CustomAppBar(
           title: "일지 수정",
         ),
         body: Obx(() {
-          if (diaryController.isLoading == true) {
+          if (diaryController.isLoading.value == true) {
             return Center(
                 child: Lottie.asset('assets/lotties/loading_lottie.json'));
           } else {
@@ -164,7 +179,7 @@ class _DiaryEditFormState extends State<DiaryEditForm> {
                               child: Container(
                                 color: Colors.white,
                                 height: 300,
-                                padding: EdgeInsets.all(100),
+                                padding: const EdgeInsets.all(100),
                                 child:
                                     SvgPicture.asset('assets/icons/image.svg'),
                               ),

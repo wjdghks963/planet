@@ -5,14 +5,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:planet/components/common/CustomAppBar.dart';
 import 'package:planet/components/common/custom_alert_dialog.dart';
+import 'package:planet/components/common/custom_select_dialog.dart';
 import 'package:planet/components/common/custom_text_button.dart';
-import 'package:planet/controllers/diary_controller.dart';
+import 'package:planet/controllers/diary/diary_controller.dart';
 import 'package:planet/controllers/plant/selected_plant_detail_controller.dart';
 import 'package:planet/models/api/diary/diary_form_dto.dart';
+import 'package:planet/services/diary_api_service.dart';
 import 'package:planet/theme.dart';
 import 'package:planet/utils/image_resizer.dart';
+import 'package:planet/utils/image_select.dart';
 
 class DiaryForm extends StatefulWidget {
   const DiaryForm({super.key});
@@ -22,30 +26,42 @@ class DiaryForm extends StatefulWidget {
 }
 
 class _DiaryFormState extends State<DiaryForm> {
-  late DiaryController diaryController;
   final TextEditingController _contentController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
 
   void getImage(ImageSource source) async {
-    final XFile? image = await _picker.pickImage(source: source);
+    var permissionGranted = await requestImgPermission();
+    if (permissionGranted) {
+      selectedImg(source);
+    }
+  }
 
-    setState(() {
-      _pickedImage = image;
-    });
+  void selectedImg(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+
+      setState(() {
+        _pickedImage = image;
+      });
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: "지원하지 않는 파일 형식입니다."));
+    }
   }
 
   bool isPublic = false;
 
   Future<void> postForm() async {
+    DiaryController diaryController = Get.find<DiaryController>();
+
     String content = _contentController.text;
 
     if (_pickedImage == null) {
       Get.dialog(CustomAlertDialog(alertContent: "사진을 등록해 주세요."));
       return;
     }
-    if (content == "" ) {
+    if (content == "") {
       Get.dialog(CustomAlertDialog(alertContent: "빈칸을 전부 채워 주세요."));
       return;
     }
@@ -68,7 +84,7 @@ class _DiaryFormState extends State<DiaryForm> {
 
   @override
   void initState() {
-    diaryController = Get.find<DiaryController>();
+    Get.put(DiaryController(DiaryApiClient()));
     super.initState();
   }
 
@@ -76,13 +92,16 @@ class _DiaryFormState extends State<DiaryForm> {
   Widget build(BuildContext context) {
     final SelectedPlantDetailController selectedPlantDetailController =
         Get.find<SelectedPlantDetailController>();
+    final DiaryController diaryController = Get.find<DiaryController>();
+    String? nickName =
+        selectedPlantDetailController.selectedPlant.nickName ?? "";
 
     return Scaffold(
         appBar: CustomAppBar(
           title: "일지 작성",
         ),
         body: Obx(() {
-          if (diaryController.isLoading == true) {
+          if (diaryController.isLoading.value == true) {
             return Center(
                 child: Lottie.asset('assets/lotties/loading_lottie.json'));
           } else {
@@ -99,10 +118,12 @@ class _DiaryFormState extends State<DiaryForm> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            selectedPlantDetailController
-                                    .selectedPlant.nickName ??
-                                "",
+                            nickName.length > 8
+                                ? "${nickName.substring(0, 8)}..."
+                                : nickName,
                             style: TextStyles.whiteTitleStyle,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                           Text(
                             Get.arguments?["date"] ?? "",
