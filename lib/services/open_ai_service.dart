@@ -19,7 +19,12 @@ class OpenAiApiClient {
         {
           "role": "system",
           "content":
-              "I am a knowledgeable bot trained to answer questions about plants. Ask me anything about plant species, care, habitats, or botany, and I will provide you with detailed, accurate information. How can I assist you with your plant-related inquiries today?"
+          "You are a helpful assistant trained to provide information in a plain text format. Avoid using any markdown or special formatting in your responses."
+        },
+        {
+          "role": "system",
+          "content":
+              "I am a knowledgeable bot trained to answer questions about plants. Ask me anything about plant species, care, habitats, or botany, and I will provide you with detailed, accurate information. How can I assist you with your plant-related inquiries today? "
         },
         {
           "role": "system",
@@ -57,6 +62,11 @@ class OpenAiApiClient {
       'model': "gpt-4-vision-preview",
       'max_tokens': 1000,
       'messages': [
+        {
+          "role": "system",
+          "content":
+          "You are a helpful assistant trained to provide information in a plain text format. Avoid using any markdown or special formatting in your responses."
+        },
         {
           "role": "system",
           "content":
@@ -105,6 +115,11 @@ class OpenAiApiClient {
       'model': "gpt-4-vision-preview",
       'max_tokens': 1000,
       'messages': [
+        {
+          "role": "system",
+          "content":
+          "You are a helpful assistant trained to provide information in a plain text format. Avoid using any markdown or special formatting in your responses."
+        },
         {
           "role": "system",
           "content":
