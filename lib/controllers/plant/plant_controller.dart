@@ -15,8 +15,8 @@ class PlantController extends GetxController {
 
   @override
   void onInit() {
-    fetchMyPlants();
     super.onInit();
+    fetchMyPlants();
   }
 
   void fetchMyPlants() async {
@@ -93,8 +93,8 @@ class RandomPlantsController extends GetxController {
 
   @override
   void onInit() {
-    fetchRandomPlants();
     super.onInit();
+    fetchRandomPlants();
   }
 
   void fetchRandomPlants() async {
