@@ -5,7 +5,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:planet/components/common/custom_alert_dialog.dart';
-import 'package:planet/models/api/exception/ServerException.dart';
 import 'package:planet/models/api/user/login_response.dart';
 import 'package:planet/screen/root.dart';
 import 'package:planet/utils/OAuth/token_storage.dart';
@@ -33,29 +32,27 @@ class SocialLogin {
     }
   }
 
-  Future<GoogleSignInAccount?> signInWithGoogle() async {
+  void signInWithGoogle() async {
     // Google 로그인 플로우 생성
     final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      // Google 계정 선택
+      final GoogleSignInAccount? googleSignInAccount =
+          await googleSignIn.signIn();
+      if (googleSignInAccount != null) {
+        // Google 계정 정보 반환
+        String? name = googleSignInAccount.displayName;
+        String email = googleSignInAccount.email;
 
-    // Google 계정 선택
-    final GoogleSignInAccount? googleSignInAccount =
-        await googleSignIn.signIn();
-
-    if (googleSignInAccount != null) {
-      // Google 계정 정보 반환
-      String? name = googleSignInAccount.displayName;
-      String email = googleSignInAccount.email;
-
-      try {
-        await apiClient.sendLoginData(email, name ?? "");
-      } catch (e) {
-        print("LOGIN ERROR" + e.toString());
-        Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+        bool success = await apiClient.sendLoginData(email, name ?? "Planet");
+        if (success) {
+          Get.offAll(() => const RootScreen());
+        } else {
+          Get.dialog(CustomAlertDialog(alertContent: "서버 에러"));
+        }
       }
-
-      return googleSignInAccount;
-    } else {
-      return null;
+    } catch (e) {
+      Get.dialog(CustomAlertDialog(alertContent: e.toString()));
     }
   }
 
@@ -65,12 +62,13 @@ class SocialLogin {
       KakaoUser.User userData = await UserApi.instance.me();
       String? name = userData.kakaoAccount?.profile?.nickname;
       String? email = userData.kakaoAccount?.email;
-      print("KAKAO :$name   $email");
 
-      try {
-        await apiClient.sendLoginData(email ?? "", name ?? "");
-      } catch (e) {
-        Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      bool success =
+          await apiClient.sendLoginData(email ?? "", name ?? "Planet");
+      if (success) {
+        Get.offAll(() => const RootScreen());
+      } else {
+        Get.dialog(CustomAlertDialog(alertContent: "서버 에러"));
       }
       // 로그인 성공 시 처리
     } catch (e) {
@@ -97,11 +95,14 @@ class SocialLogin {
       String familyName = credential.familyName ?? "";
       String name = givenName + familyName;
 
-      try {
-        await apiClient.sendLoginData(email ?? "", name);
-      } catch (e) {
-        Get.dialog(CustomAlertDialog(alertContent: e.toString()));
+      bool success =
+          await apiClient.sendLoginData(email ?? "", name ?? "Planet");
+      if (success) {
+        Get.offAll(() => const RootScreen());
+      } else {
+        Get.dialog(CustomAlertDialog(alertContent: "서버 에러"));
       }
+
       // 로그인 성공 시 처리
     } catch (e) {
       // 로그인 실패 시 처리
@@ -111,7 +112,7 @@ class SocialLogin {
 }
 
 class APIClient {
-  Future<http.Response> sendLoginData(String email, String name) async {
+  Future<bool> sendLoginData(String email, String name) async {
     String domain = DevelopDomain().run();
     final tokenStorage = TokenStorage();
 
@@ -127,10 +128,9 @@ class APIClient {
       final result = LoginResponse.fromJson(jsonDecode(response.body));
       await tokenStorage.saveToken(result.accessToken, result.refreshToken);
 
-      Get.offAll(() => const RootScreen());
-      return response;
+      return true;
     } else {
-      throw ServerException("서버 응답 에러: ${response.body}");
+      return false;
     }
   }
 }
