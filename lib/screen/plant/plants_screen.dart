@@ -8,7 +8,6 @@ import 'package:planet/components/common/custom_alert_dialog.dart';
 import 'package:planet/controllers/plant/plant_controller.dart';
 import 'package:planet/controllers/user/user_info_controller.dart';
 import 'package:planet/screen/plant/add_plant_form.dart';
-import 'package:planet/services/user_api_service.dart';
 import 'package:planet/theme.dart';
 
 class PlantsScreen extends StatefulWidget {
@@ -19,6 +18,7 @@ class PlantsScreen extends StatefulWidget {
 }
 
 class _PlantsScreenState extends State<PlantsScreen> {
+
   Future? goToAddForm() async {
     UserInfoController userInfoController = Get.find<UserInfoController>();
 
@@ -28,8 +28,9 @@ class _PlantsScreenState extends State<PlantsScreen> {
         userInfoController.userInfoDetail.value?.maxPlants ?? 3;
 
     if (plantController.myPlants.length + 1 > maxPlantsCount) {
-      return Get.dialog(
-          CustomAlertDialog(alertContent: "$maxPlantsCount 개 이상은 등록할 수 없습니다."));
+      return Get.dialog(CustomAlertDialog(
+          alertContent:
+              "$maxPlantsCount 개 이상은 등록할 수 없습니다.\n카페를 참고 아니면 마이 페이지에서 등급을 올려주세요."));
     } else {
       return Get.to(
         () => const AddPlantForm(),
@@ -38,12 +39,6 @@ class _PlantsScreenState extends State<PlantsScreen> {
     }
   }
 
-  @override
-  void initState() {
-    Get.put(UserInfoController(UserApiClient()));
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,26 +61,30 @@ class _PlantsScreenState extends State<PlantsScreen> {
                 return Center(
                     child: Lottie.asset('assets/lotties/loading_lottie.json'));
               } else {
-
-                return ListView.builder(
-                  itemCount: plantController.myPlants.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      // 첫 번째 아이템에 광고 위젯 삽입
-                      return const CustomAdWidget();
-                    }
-                    final plant = plantController.myPlants[index - 1];
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 25.0),
-                      child: MyPlantDetailCard(
-                        nickName: plant.nickName,
-                        plantId: plant.plantId,
-                        period: plant.period,
-                        imgUrl: plant.imgUrl,
-                      ),
-                    );
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    plantController.fetchMyPlants();
                   },
+                  child: ListView.builder(
+                    itemCount: plantController.myPlants.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // 첫 번째 아이템에 광고 위젯 삽입
+                        return const CustomAdWidget();
+                      }
+                      final plant = plantController.myPlants[index - 1];
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 25.0),
+                        child: MyPlantDetailCard(
+                          nickName: plant.nickName,
+                          plantId: plant.plantId,
+                          period: plant.period,
+                          imgUrl: plant.imgUrl,
+                        ),
+                      );
+                    },
+                  ),
                 );
               }
             })),
