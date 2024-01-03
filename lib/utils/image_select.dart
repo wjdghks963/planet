@@ -11,7 +11,7 @@ Future<bool> requestImgPermission() async {
   if (Platform.isAndroid) {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
 
-    if (androidInfo.version.sdkInt <= 33) {
+    if (androidInfo.version.sdkInt < 33) {
       status = await Permission.storage.status;
     } else {
       status = await Permission.photos.status;
@@ -19,11 +19,10 @@ Future<bool> requestImgPermission() async {
     if (status.isDenied || status.isPermanentlyDenied) {
       PermissionStatus newStatus;
       try {
-        if (Platform.isAndroid && androidInfo.version.sdkInt <= 33) {
+        if (Platform.isAndroid && androidInfo.version.sdkInt < 33) {
           newStatus = await Permission.storage.request();
         } else {
           newStatus = await Permission.photos.request();
-
         }
 
         if (newStatus.isGranted) {

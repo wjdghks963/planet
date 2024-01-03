@@ -27,7 +27,10 @@ class _MoreButtonState extends State<MoreButton> {
         ),
         elevation: 4.0,
       ),
-      child: const Text('더 보기'),
+      child: const Text(
+        '더 보기',
+        style: TextStyle(fontSize: 18.0),
+      ),
     );
   }
 }
