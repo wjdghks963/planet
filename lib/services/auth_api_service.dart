@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:planet/main.dart';
 import 'package:planet/utils/OAuth/token_storage.dart';
 import 'package:planet/utils/develop_domain.dart';
 
@@ -24,11 +23,10 @@ class AuthApiService extends GetConnect {
         await storage.saveToken(
             response.body['access_token'], response.body['refresh_token']);
         return true;
+      } else {
+        return false;
       }
-
-      return false;
     } catch (e) {
-      print("Error refreshing token: $e");
       return false;
     }
   }
