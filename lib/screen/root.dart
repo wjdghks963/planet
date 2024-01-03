@@ -9,6 +9,7 @@ import 'package:planet/screen/home.dart';
 import 'package:planet/screen/user_info/user_info_screen.dart';
 import 'package:planet/services/plant_api_service.dart';
 import 'package:planet/services/user_api_service.dart';
+import 'package:planet/theme.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({Key? key}) : super(key: key);
@@ -53,21 +54,39 @@ class _RootScreenWidgetState extends State<RootScreen> {
                 BottomNavigationBarItem(
                   icon: Container(
                     margin: const EdgeInsets.only(top: 10.0),
-                    child: SvgPicture.asset('assets/icons/home.svg'),
+                    child: SvgPicture.asset(
+                      'assets/icons/home.svg',
+                      color: _selectedIndex == 0
+                          ? ColorStyles.mainAccent
+                          : Colors.black,
+                      width: _selectedIndex == 0 ? 25 : 23,
+                    ),
                   ),
                   label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Container(
                     margin: const EdgeInsets.only(top: 10.0),
-                    child: SvgPicture.asset('assets/icons/pot.svg'),
+                    child: SvgPicture.asset(
+                      'assets/icons/pot.svg',
+                      color: _selectedIndex == 1
+                          ? ColorStyles.mainAccent
+                          : Colors.black,
+                      width: _selectedIndex == 1 ? 25 : 23,
+                    ),
                   ),
                   label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Container(
                     margin: const EdgeInsets.only(top: 10.0),
-                    child: SvgPicture.asset('assets/icons/user.svg'),
+                    child: SvgPicture.asset(
+                      'assets/icons/user.svg',
+                      color: _selectedIndex == 2
+                          ? ColorStyles.mainAccent
+                          : Colors.black,
+                      width: _selectedIndex == 2 ? 28 : 23,
+                    ),
                   ),
                   label: '',
                 ),
