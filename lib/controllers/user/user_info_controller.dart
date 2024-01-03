@@ -13,8 +13,8 @@ class UserInfoController extends GetxController {
 
   @override
   void onInit() {
-    getUserDetail();
     super.onInit();
+    getUserDetail();
   }
 
   Future<void> getUserDetail() async {
@@ -23,7 +23,6 @@ class UserInfoController extends GetxController {
       final userDetailModel = await userApiClient.getUserInfo();
       userInfoDetail(userDetailModel);
     } catch (e) {
-      print("USER INFO ERROR"+e.toString());
       await Get.dialog(CustomAlertDialog(alertContent: e.toString()));
     } finally {
       isLoading(false);

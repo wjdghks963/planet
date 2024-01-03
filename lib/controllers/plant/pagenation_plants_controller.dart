@@ -11,8 +11,8 @@ class RecentPlantsController extends GetxController {
 
   @override
   void onInit() {
-    fetchRecentPlants();
     super.onInit();
+    fetchRecentPlants();
   }
 
   void fetchRecentPlants() async {
@@ -95,8 +95,8 @@ class PopularPlantsController extends GetxController {
 
   @override
   void onInit() {
-    fetchPopularPlants();
     super.onInit();
+    fetchPopularPlants();
   }
 }
 
@@ -112,8 +112,8 @@ class HeartPlantsController extends GetxController {
 
   @override
   void onInit() {
-    fetchHeartPlants();
     super.onInit();
+    fetchHeartPlants();
   }
 
   void fetchHeartPlants() async {
